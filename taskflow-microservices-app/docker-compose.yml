@@ -1,0 +1,117 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:4000
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+  api-gateway:
+    build: ./services/api-gateway
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      JWT_SECRET: supersecretkey
+      AUTH_SERVICE_URL: http://auth-service:4001
+      USER_SERVICE_URL: http://user-service:4002
+      TASK_SERVICE_URL: http://task-service:4003
+      PROJECT_SERVICE_URL: http://project-service:4004
+    depends_on:
+      - auth-service
+      - user-service
+      - task-service
+      - project-service
+
+  auth-service:
+    build: ./services/auth-service
+    ports:
+      - "4001:4001"
+    environment:
+      PORT: 4001
+      JWT_SECRET: supersecretkey
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: taskflow
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      - postgres
+
+  user-service:
+    build: ./services/user-service
+    ports:
+      - "4002:4002"
+    environment:
+      PORT: 4002
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: taskflow
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      - postgres
+
+  task-service:
+    build: ./services/task-service
+    ports:
+      - "4003:4003"
+    environment:
+      PORT: 4003
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: taskflow
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      - rabbitmq
+      - postgres
+
+  project-service:
+    build: ./services/project-service
+    ports:
+      - "4004:4004"
+    environment:
+      PORT: 4004
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: taskflow
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: taskflow
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  notification-service:
+    build: ./services/notification-service
+    ports:
+      - "4005:4005"
+    environment:
+      PORT: 4005
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - rabbitmq
+      
+volumes:
+  postgres_data:

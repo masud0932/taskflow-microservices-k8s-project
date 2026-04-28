@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: taskflow
+data:
+  VITE_API_BASE_URL: "http://taskflow.local/api"

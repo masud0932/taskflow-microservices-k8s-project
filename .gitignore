@@ -1,0 +1,6 @@
+.terraform.lock.hcl
+taskflow-infra-terraform/
+.terraform/
+*.tfstate
+*.tfstate.*
+*.pem

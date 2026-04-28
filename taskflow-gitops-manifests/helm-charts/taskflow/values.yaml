@@ -1,0 +1,78 @@
+namespace: dev
+
+image:
+  registry: masudrana09
+  tag: v1
+  pullPolicy: IfNotPresent
+
+aws:
+  region: eu-central-1
+
+secrets:
+  dbSecretArn: "<RDS_MASTER_USER_SECRET_ARN>" # Update with your RDS master user secret ARN
+  rabbitmqSecretName: "taskflow/dev/rabbitmq"
+
+database:
+  host: "<RDS_ENDPOINT>" # Update with your RDS endpoint
+  port: "5432"
+  name: "taskflow"
+
+rabbitmq:
+  host: "<AMAZON_MQ_ENDPOINT>" # Update with your Amazon MQ endpoint
+  port: "5672"
+
+ingress:
+  enabled: true
+  className: alb
+  host: "" 
+  scheme: internet-facing
+
+services:
+  frontend:
+    image: taskflow-frontend
+    port: 80
+    replicas: 2
+
+  apiGateway:
+    image: taskflow-api-gateway
+    port: 4000
+    replicas: 2
+
+  authService:
+    image: taskflow-auth-service
+    port: 3001
+    replicas: 2
+
+  userService:
+    image: taskflow-user-service
+    port: 3002
+    replicas: 2
+
+  taskService:
+    image: taskflow-task-service
+    port: 3003
+    replicas: 2
+
+  projectService:
+    image: taskflow-project-service
+    port: 3004
+    replicas: 2
+
+  notificationService:
+    image: taskflow-notification-service
+    port: 3005
+    replicas: 2
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  cpuUtilization: 70

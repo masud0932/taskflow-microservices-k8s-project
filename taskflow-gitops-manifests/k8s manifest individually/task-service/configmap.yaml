@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: task-service-config
+  namespace: dev
+data:
+  PORT: "3003"
+  DB_HOST: "taskflow-dev-postgres.xxxxxx.eu-central-1.rds.amazonaws.com" # Replace with your actual RDS endpoint
+  DB_PORT: "5432"
+  DB_NAME: "taskflow"
+  RABBITMQ_HOST: "b-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.mq.eu-central-1.amazonaws.com" # Replace with your actual RabbitMQ endpoint
+  RABBITMQ_PORT: "5672" # Default RabbitMQ port

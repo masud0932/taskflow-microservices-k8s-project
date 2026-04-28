@@ -1,0 +1,15 @@
+{{- range $name, $svc := .Values.services }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}-config
+  namespace: {{ $.Values.namespace }}
+data:
+  PORT: {{ $svc.port | quote }}
+  DB_HOST: {{ $.Values.database.host | quote }}
+  DB_PORT: {{ $.Values.database.port | quote }}
+  DB_NAME: {{ $.Values.database.name | quote }}
+  RABBITMQ_HOST: {{ $.Values.rabbitmq.host | quote }}
+  RABBITMQ_PORT: {{ $.Values.rabbitmq.port | quote }}
+---
+{{- end }}
