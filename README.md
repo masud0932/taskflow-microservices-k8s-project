@@ -39,20 +39,32 @@ cd taskflow-microservices-project
 ```
 ### 2. Project Structure
 
+```bash
 taskflow-microservices-project/
-├── frontend/
-├── services/
-│   ├── api-gateway/
-│   ├── auth-service/
-│   ├── user-service/
-│   ├── task-service/
-│   ├── project-service/
-│   └── notification-service/
-├── docker-compose.yml
-├── k8s/
-├── helm/
-├── infra/
-└── Jenkinsfile
+├── taskflow-microservices-app/
+|    ├──frontend
+|    ├──services/
+│       ├── api-gateway/
+│       ├── auth-service/
+│       ├── user-service/
+│       ├── task-service/
+│       ├── project-service/
+│       └── notification-service/
+|    ├── docker-compose.yml
+|
+├── taskflow-infra-terraform/
+|    ├──bootstrap/
+|    ├──infra/
+|    ├──platform/
+|
+├── taskflow-gitops-manifests/
+|    ├──argocd/
+|    ├──helm-charts/
+|    ├──monitoring/
+|
+├── Jenkinsfile
+└── README.md
+```
 
 ### 2: Install Required Tools
 Install the following tools before running the project:
