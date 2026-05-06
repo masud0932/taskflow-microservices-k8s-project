@@ -115,7 +115,7 @@ curl -X POST http://localhost:4000/auth/login \
 
 This phase provisions the complete AWS infrastructure for the Taskflow Microservices Platform using Terraform. The infrastructure is designed following production-style cloud architecture and Infrastructure as Code (IaC) best practices.
 
-### 1. Architecture Overview
+### Architecture Overview
 
 The infrastructure layer provisions:
 
@@ -129,7 +129,7 @@ The infrastructure layer provisions:
 - AWS Secrets Manager integration
 - Terraform remote backend (S3 + DynamoDB + KMS)
 
-### 2. Infrastructure Structure
+### Infrastructure Structure
 
 ```bash
 terraform/
@@ -138,17 +138,17 @@ terraform/
 └── platform/
 ```
 
-### 3. Bootstrap Layer
+#### Step 1: Bootstrap Layer
 
 The bootstrap layer creates the Terraform remote backend.
 
-#### Resources Created
+##### Resources Created
 
 - S3 bucket for Terraform state
 - DynamoDB table for state locking
 - KMS key for state encryption
 
-#### Run
+##### Run
 
 ```bash
 cd terraform/bootstrap
@@ -156,13 +156,13 @@ terraform init
 terraform apply
 ```
 
-### 4. Infrastructure Layer
+#### Step 2: Infrastructure Layer
 
 The infrastructure layer provisions the AWS cloud resources.
 
-#### Resources Created
+##### Resources Created
 
-##### Networking
+###### 1. Networking
 
 - VPC
 - Public subnets
@@ -171,14 +171,14 @@ The infrastructure layer provisions the AWS cloud resources.
 - Route tables
 - Internet Gateway
 
-##### Kubernetes
+###### 2. Kubernetes
 
 - Amazon EKS cluster
 - Managed node group
 - IAM roles
 - OIDC provider for IRSA
 
-##### Container Registry
+###### 3. Container Registry
 
 Amazon ECR repositories for:
 
@@ -190,13 +190,13 @@ Amazon ECR repositories for:
 - project-service
 - notification-service
 
-##### Database
+###### 4. Database
 
 - Amazon RDS PostgreSQL
 - RDS-managed master password
 - Automatic secret storage in AWS Secrets Manager
 
-##### Messaging
+###### 5. Messaging
 
 - Amazon MQ RabbitMQ broker
 - RabbitMQ credentials stored in AWS Secrets Manager
@@ -225,7 +225,7 @@ Application Pods
 
 Secrets are never hardcoded in Kubernetes manifests or Git repositories.
 
-### Run Infrastructure Layer
+#### Run Infrastructure Layer
 
 ```bash
 cd terraform/infra
@@ -234,7 +234,7 @@ terraform plan
 terraform apply
 ```
 
-### Important Terraform Outputs
+#### Important Terraform Outputs
 
 After successful deployment:
 
@@ -254,7 +254,7 @@ Important outputs:
 
 These outputs are later used by the platform and GitOps layers.
 
-### Important Features
+#### Important Features
 - Infrastructure as Code with Terraform
 - Production-style VPC design
 - Private networking for backend services
@@ -264,13 +264,13 @@ These outputs are later used by the platform and GitOps layers.
 - Container image vulnerability scanning in ECR
 - Modular Terraform architecture
 
-## Phase 2: Kubernetes Platform & Addons Deployment
+#### Step 3: Kubernetes Platform & Addons Deployment
 
 This phase installs the core Kubernetes platform components inside the Amazon EKS cluster using Terraform and Helm.
 
 The platform layer prepares the cluster for secure application deployment, GitOps, ingress management, monitoring, and secret synchronization.
 
-### Platform Architecture
+##### Platform Architecture
 
 ```bash
 terraform/platform
@@ -280,20 +280,37 @@ Connects to existing EKS cluster
 Installs Kubernetes platform tools
 ```
 
-### Components Installed
+##### Platform Structure
 
-#### AWS Load Balancer Controller
+```bash
+terraform/platform/
+├── provider.tf
+├── versions.tf
+├── variables.tf
+├── terraform.tfvars
+├── main.tf
+├── outputs.tf
+└── modules/
+      ├── addons/
+            ├── argoCD/
+            ├── AWS Load Balancer Controller/
+            ├── External Secrets Operator (ESO)/
+```
+
+##### Components Installed
+
+###### 1. AWS Load Balancer Controller
 
 The AWS Load Balancer Controller integrates Kubernetes Ingress resources with AWS Application Load Balancers (ALB).
 
-##### Features
+###### Features
 
 - Automatic ALB provisioning
 - Ingress integration
 - Target group management
 - External traffic routing
 
-#### External Secrets Operator (ESO)
+##### 2. External Secrets Operator (ESO)
 
 External Secrets Operator synchronizes secrets from AWS Secrets Manager into Kubernetes Secrets.
 
@@ -315,7 +332,7 @@ Application Pods
 - RabbitMQ credentials
 - Grafana credentials
 
-#### Argo CD
+##### 3. Argo CD
 
 Argo CD enables GitOps-based Kubernetes deployment.
 
@@ -336,7 +353,7 @@ Argo CD
 EKS Cluster
 ```
 
-### Namespaces Created
+### 4. Namespaces Created
 
 The platform layer creates the following namespaces:
 
@@ -345,34 +362,7 @@ The platform layer creates the following namespaces:
 - monitoring
 - dev
 
-### IAM Roles for Service Accounts (IRSA)
-
-This project uses IRSA for secure AWS access from Kubernetes workloads.
-
-#### IRSA Used By
-
-- AWS Load Balancer Controller
-- External Secrets Operator
-
-#### Flow
-
-```bash
-Kubernetes ServiceAccount
-   ↓
-IAM Role
-   ↓
-AWS API Access
-```
-
-No static AWS credentials are stored inside pods.
-
-### Monitoring Strategy
-
-Prometheus and Grafana are deployed later through Argo CD using the kube-prometheus-stack Helm chart.
-
-The platform layer only prepares the required namespace and infrastructure.
-
-### Run Platform Layer
+##### Run Platform Layer
 
 ```bash
 cd terraform/platform
@@ -382,19 +372,7 @@ terraform plan
 terraform apply
 ```
 
-### Platform Structure
-
-terraform/platform/
-├── provider.tf
-├── versions.tf
-├── variables.tf
-├── terraform.tfvars
-├── main.tf
-├── outputs.tf
-└── modules/
-    └── addons/
-
-### Production Features
+##### Production Features
 
 GitOps-ready Kubernetes platform
 Secure secret synchronization
@@ -404,7 +382,9 @@ Namespace isolation
 Production-style addon separation
 Modular Terraform platform layer
 
-## Phase 3: CI/CD Automation with Jenkins
+## Phase 3: CI/CD workflow
+
+### Step 1: CI/CD Automation with Jenkins
 
 This phase implements the Continuous Integration and Continuous Deployment (CI/CD) pipeline for the Taskflow Microservices Platform using Jenkins.
 
@@ -417,7 +397,7 @@ The pipeline automates:
 - GitOps manifest updates
 - Automated Kubernetes deployment through Argo CD
 
-### CI/CD Architecture
+#### CI/CD Architecture
 
 ```bash
 Developer
@@ -441,7 +421,7 @@ Argo CD detects changes
 Deploy to Amazon EKS
 ```
 
-### Jenkins Responsibilities
+#### Jenkins Responsibilities
 
 The Jenkins pipeline performs:
 
@@ -453,93 +433,8 @@ The Jenkins pipeline performs:
 - Update Helm chart image tags
 - Commit changes to GitOps repository
 
-### CI/CD Workflow
 
-#### Step 1: Developer Pushes Code
-
-```bash
-Developer
-   ↓
-Push code to GitHub
-```
-
-#### Step 2: GitHub Webhook Triggers Jenkins
-
-```bash
-GitHub
-   ↓
-Webhook
-   ↓
-Jenkins Pipeline
-```
-
-#### Step 3: Jenkins Builds Docker Images
-
-Each microservice is containerized:
-
-- frontend
-- api-gateway
-- auth-service
-- user-service
-- task-service
-- project-service
-- notification-service
-
-#### Step 4: Push Images to Amazon ECR
-
-```bash
-Jenkins
-   ↓
-Amazon ECR
-```
-
-Images are tagged using:
-
-- build number
-- Git commit SHA
-- version tags
-
-### ECR Repositories
-
-Separate ECR repositories are created for each service:
-
-- taskflow-frontend
-- taskflow-api-gateway
-- taskflow-auth-service
-- taskflow-user-service
-- taskflow-task-service
-- taskflow-project-service
-- taskflow-notification-service
-
-### GitOps Update Flow
-
-After pushing images:
-
-```bash
-Jenkins
-   ↓
-Updates Helm values/image tag
-   ↓
-Pushes changes to GitOps repository
-   ↓
-Argo CD detects new commit
-   ↓
-Deploys updated version
-```
-
-### Deployment Automation
-
-Argo CD automatically synchronizes:
-
-- Deployments
-- Services
-- Ingress
-- HPA
-- ExternalSecrets
-
-No manual Kubernetes deployment commands are required.
-
-### Security & Secret Handling
+#### Security & Secret Handling
 
 The pipeline uses:
 
@@ -550,7 +445,8 @@ The pipeline uses:
 
 Sensitive credentials are not stored directly in Git repositories.
 
-## Production Features
+#### Production Features
+
 - Automated CI/CD pipeline
 - GitOps deployment workflow
 - Immutable container image deployment
@@ -561,7 +457,7 @@ Sensitive credentials are not stored directly in Git repositories.
 - Production-style deployment automation
 
 
-## Phase 4: GitOps Continuous Deployment with Argo CD
+## Step 2: GitOps Continuous Deployment with Argo CD
 
 This phase deploys the Taskflow microservices platform into Amazon EKS using GitOps practices with Argo CD and Helm charts.
 
@@ -629,14 +525,6 @@ Automatic deployment to EKS
 ```
 
 ### Argo CD Applications
-
-#### External Secrets Operator Application
-
-Deploys the External Secrets Operator Helm chart.
-
-```bash
-external-secrets-app.yaml
-```
 
 #### Monitoring Application
 
