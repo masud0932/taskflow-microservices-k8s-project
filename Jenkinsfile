@@ -22,7 +22,10 @@ pipeline {
 
         stage('Terraform Init') {
             when {
-                changeset "taskflow-infra-terraform/**"
+                anyOf {
+                    expression { currentBuild.number == 1 }
+                    changeset "taskflow-infra-terraform/**"
+                }
             }
             steps {
                 dir("${INFRA_DIR}") {
@@ -33,7 +36,10 @@ pipeline {
 
         stage('Terraform Validate') {
             when {
-                changeset "taskflow-infra-terraform/**"
+                anyOf {
+                    expression { currentBuild.number == 1 }
+                    changeset "taskflow-infra-terraform/**"
+                }
             }
             steps {
                 dir("${INFRA_DIR}") {
@@ -47,7 +53,10 @@ pipeline {
 
         stage('Terraform Plan') {
             when {
-                changeset "taskflow-infra-terraform/**"
+                anyOf {
+                    expression { currentBuild.number == 1 }
+                    changeset "taskflow-infra-terraform/**"
+                }
             }
             steps {
                 dir("${INFRA_DIR}") {
