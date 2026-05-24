@@ -38,13 +38,13 @@ pipeline {
         stage('Build Images') {
             steps {
                 sh """
-                    docker build -t ${ECR_REGISTRY}/taskflow-frontend:${IMAGE_TAG} ./frontend
-                    docker build -t ${ECR_REGISTRY}/taskflow-api-gateway:${IMAGE_TAG} ./api-gateway
-                    docker build -t ${ECR_REGISTRY}/taskflow-auth-service:${IMAGE_TAG} ./auth-service
-                    docker build -t ${ECR_REGISTRY}/taskflow-user-service:${IMAGE_TAG} ./user-service
-                    docker build -t ${ECR_REGISTRY}/taskflow-task-service:${IMAGE_TAG} ./task-service
-                    docker build -t ${ECR_REGISTRY}/taskflow-project-service:${IMAGE_TAG} ./project-service
-                    docker build -t ${ECR_REGISTRY}/taskflow-notification-service:${IMAGE_TAG} ./notification-service
+                docker build -t ${ECR_REGISTRY}/taskflow-frontend:${IMAGE_TAG} ./taskflow-microservices-app/frontend
+                docker build -t ${ECR_REGISTRY}/taskflow-api-gateway:${IMAGE_TAG} ./taskflow-microservices-app/api-gateway
+                docker build -t ${ECR_REGISTRY}/taskflow-auth-service:${IMAGE_TAG} ./taskflow-microservices-app/auth-service
+                docker build -t ${ECR_REGISTRY}/taskflow-user-service:${IMAGE_TAG} ./taskflow-microservices-app/user-service
+                docker build -t ${ECR_REGISTRY}/taskflow-task-service:${IMAGE_TAG} ./taskflow-microservices-app/task-service
+                docker build -t ${ECR_REGISTRY}/taskflow-project-service:${IMAGE_TAG} ./taskflow-microservices-app/project-service
+                docker build -t ${ECR_REGISTRY}/taskflow-notification-service:${IMAGE_TAG} ./taskflow-microservices-app/notification-service
                 """
             }
         }
