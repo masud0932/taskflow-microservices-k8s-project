@@ -25,12 +25,12 @@ spec:
             - configMapRef:
                 name: {{ $name }}-config
 
-            {{- if or (eq $name "authService") (eq $name "userService") (eq $name "taskService") (eq $name "projectService") }}
+            {{- if or (eq $name "auth-service") (eq $name "user-service") (eq $name "task-service") (eq $name "project-service") }}
             - secretRef:
                 name: taskflow-db-secret
             {{- end }}
 
-            {{- if or (eq $name "taskService") (eq $name "notificationService") }}
+            {{- if or (eq $name "task-service") (eq $name "notification-service") }}
             - secretRef:
                 name: taskflow-rabbitmq-secret
             {{- end }}
