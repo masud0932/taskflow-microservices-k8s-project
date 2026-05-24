@@ -54,7 +54,7 @@ function fixRequestBody(proxyReq, req) {
 app.use(
   '/auth',
   createProxyMiddleware({
-    target: 'http://auth-service:4001',
+    target: process.env.AUTH_SERVICE_URL,
     changeOrigin: true,
     pathRewrite: {
       '^/auth': ''
@@ -70,12 +70,10 @@ app.use(
   authenticateToken,
   addUserHeaders,
   createProxyMiddleware({
-    target: 'http://user-service:4002',
+    target: process.env.USER_SERVICE_URL,
     changeOrigin: true,
-    pathRewrite: (path, req) => `/users${path}`,
-    on: {
-      proxyReq: fixRequestBody
-    }
+    pathRewrite: (path) => `/users${path}`,
+    on: { proxyReq: fixRequestBody }
   })
 );
 
@@ -84,12 +82,10 @@ app.use(
   authenticateToken,
   addUserHeaders,
   createProxyMiddleware({
-    target: 'http://task-service:4003',
+    target: process.env.TASK_SERVICE_URL,
     changeOrigin: true,
-    pathRewrite: (path, req) => `/tasks${path}`,
-    on: {
-      proxyReq: fixRequestBody
-    }
+    pathRewrite: (path) => `/tasks${path}`,
+    on: { proxyReq: fixRequestBody }
   })
 );
 
@@ -98,12 +94,10 @@ app.use(
   authenticateToken,
   addUserHeaders,
   createProxyMiddleware({
-    target: 'http://project-service:4004',
+    target: process.env.PROJECT_SERVICE_URL,
     changeOrigin: true,
-    pathRewrite: (path, req) => `/projects${path}`,
-    on: {
-      proxyReq: fixRequestBody
-    }
+    pathRewrite: (path) => `/projects${path}`,
+    on: { proxyReq: fixRequestBody }
   })
 );
 
