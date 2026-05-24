@@ -9,16 +9,16 @@ aws:
   region: eu-central-1
 
 secrets:
-  dbSecretArn: "<RDS_MASTER_USER_SECRET_ARN>" # Update with your RDS master user secret ARN
+  dbSecretArn: "arn:aws:secretsmanager:eu-central-1:349036691410:secret:rds!db-84b0f841-d84e-441f-82de-0d21e68dc7e9-kmfdRr" 
   rabbitmqSecretName: "taskflow/dev/rabbitmq"
 
 database:
-  host: "<RDS_ENDPOINT>" # Update with your RDS endpoint
+  host: "taskflow-dev-postgres.c7wwocm2et85.eu-central-1.rds.amazonaws.com"
   port: "5432"
   name: "taskflow"
 
 rabbitmq:
-  host: "<AMAZON_MQ_ENDPOINT>" # Update with your Amazon MQ endpoint
+  host: "amqps://b-7bb640aa-4619-40c5-b715-bcf94f29134a.mq.eu-central-1.on.aws:5671"
   port: "5672"
 
 ingress:
