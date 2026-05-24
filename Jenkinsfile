@@ -35,33 +35,33 @@ pipeline {
             }
         }
 
-        stage('Build Images') {
-            steps {
-                sh """
-                docker build -t ${ECR_REGISTRY}/taskflow-frontend:${IMAGE_TAG} ./taskflow-microservices-app/frontend
-                docker build -t ${ECR_REGISTRY}/taskflow-api-gateway:${IMAGE_TAG} ./taskflow-microservices-app/services/api-gateway
-                docker build -t ${ECR_REGISTRY}/taskflow-auth-service:${IMAGE_TAG} ./taskflow-microservices-app/services/auth-service
-                docker build -t ${ECR_REGISTRY}/taskflow-user-service:${IMAGE_TAG} ./taskflow-microservices-app/services/user-service
-                docker build -t ${ECR_REGISTRY}/taskflow-task-service:${IMAGE_TAG} ./taskflow-microservices-app/services/task-service
-                docker build -t ${ECR_REGISTRY}/taskflow-project-service:${IMAGE_TAG} ./taskflow-microservices-app/services/project-service
-                docker build -t ${ECR_REGISTRY}/taskflow-notification-service:${IMAGE_TAG} ./taskflow-microservices-app/services/notification-service
-                """
-            }
-        }
+stage('Build Images') {
+    steps {
+        sh """
+        docker build -t ${ECR_REGISTRY}/taskflow-dev/frontend:${IMAGE_TAG} ./taskflow-microservices-app/frontend
+        docker build -t ${ECR_REGISTRY}/taskflow-dev/api-gateway:${IMAGE_TAG} ./taskflow-microservices-app/services/api-gateway
+        docker build -t ${ECR_REGISTRY}/taskflow-dev/auth-service:${IMAGE_TAG} ./taskflow-microservices-app/services/auth-service
+        docker build -t ${ECR_REGISTRY}/taskflow-dev/user-service:${IMAGE_TAG} ./taskflow-microservices-app/services/user-service
+        docker build -t ${ECR_REGISTRY}/taskflow-dev/task-service:${IMAGE_TAG} ./taskflow-microservices-app/services/task-service
+        docker build -t ${ECR_REGISTRY}/taskflow-dev/project-service:${IMAGE_TAG} ./taskflow-microservices-app/services/project-service
+        docker build -t ${ECR_REGISTRY}/taskflow-dev/notification-service:${IMAGE_TAG} ./taskflow-microservices-app/services/notification-service
+        """
+    }
+}
 
-        stage('Push Images to ECR') {
-            steps {
-                sh """
-                    docker push ${ECR_REGISTRY}/taskflow-frontend:${IMAGE_TAG}
-                    docker push ${ECR_REGISTRY}/taskflow-api-gateway:${IMAGE_TAG}
-                    docker push ${ECR_REGISTRY}/taskflow-auth-service:${IMAGE_TAG}
-                    docker push ${ECR_REGISTRY}/taskflow-user-service:${IMAGE_TAG}
-                    docker push ${ECR_REGISTRY}/taskflow-task-service:${IMAGE_TAG}
-                    docker push ${ECR_REGISTRY}/taskflow-project-service:${IMAGE_TAG}
-                    docker push ${ECR_REGISTRY}/taskflow-notification-service:${IMAGE_TAG}
-                """
-            }
-        }
+stage('Push Images to ECR') {
+    steps {
+        sh """
+        docker push ${ECR_REGISTRY}/taskflow-dev/frontend:${IMAGE_TAG}
+        docker push ${ECR_REGISTRY}/taskflow-dev/api-gateway:${IMAGE_TAG}
+        docker push ${ECR_REGISTRY}/taskflow-dev/auth-service:${IMAGE_TAG}
+        docker push ${ECR_REGISTRY}/taskflow-dev/user-service:${IMAGE_TAG}
+        docker push ${ECR_REGISTRY}/taskflow-dev/task-service:${IMAGE_TAG}
+        docker push ${ECR_REGISTRY}/taskflow-dev/project-service:${IMAGE_TAG}
+        docker push ${ECR_REGISTRY}/taskflow-dev/notification-service:${IMAGE_TAG}
+        """
+    }
+}
 
 stage('Update GitOps Manifests') {
     steps {
