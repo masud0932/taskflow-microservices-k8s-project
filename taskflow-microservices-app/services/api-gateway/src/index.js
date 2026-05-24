@@ -3,6 +3,9 @@ const cors = require('cors');
 const morgan = require('morgan');
 const jwt = require('jsonwebtoken');
 const { createProxyMiddleware } = require('http-proxy-middleware');
+const client = require('prom-client');
+
+client.collectDefaultMetrics();
 
 const app = express();
 const PORT = 4000;
@@ -14,6 +17,11 @@ app.use(morgan('dev'));
 
 app.get('/health', (req, res) => {
   res.json({ service: 'api-gateway', status: 'ok' });
+});
+
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
 });
 
 function authenticateToken(req, res, next) {
