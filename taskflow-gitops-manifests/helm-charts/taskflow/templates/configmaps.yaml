@@ -6,13 +6,23 @@ metadata:
   namespace: {{ $.Values.namespace }}
 data:
   PORT: {{ $svc.port | quote }}
+
   DB_HOST: {{ $.Values.database.host | quote }}
   DB_PORT: {{ $.Values.database.port | quote }}
   DB_NAME: {{ $.Values.database.name | quote }}
   DB_SSL: "true"
   PGSSLMODE: "require"
   NODE_TLS_REJECT_UNAUTHORIZED: "0"
+
   RABBITMQ_HOST: {{ $.Values.rabbitmq.host | quote }}
   RABBITMQ_PORT: {{ $.Values.rabbitmq.port | quote }}
+
+  {{- if eq $name "api-gateway" }}
+  AUTH_SERVICE_URL: "http://auth-service:3001"
+  USER_SERVICE_URL: "http://user-service:3002"
+  TASK_SERVICE_URL: "http://task-service:3003"
+  PROJECT_SERVICE_URL: "http://project-service:3004"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:3005"
+  {{- end }}
 ---
 {{- end }}
