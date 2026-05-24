@@ -1,6 +1,27 @@
-.terraform.lock.hcl
-taskflow-infra-terraform/
-.terraform/
+# Terraform working directory
+**/.terraform/*
+
+# Terraform state
 *.tfstate
 *.tfstate.*
+
+# Sensitive variables
+*.tfvars
+*.tfvars.json
+
+# Terraform plans
+*.tfplan
+
+# Keys
 *.pem
+
+# OS / editor
+.DS_Store
+*.swp
+
+# Node
+node_modules/
+dist/
+
+# Jenkins temp
+~$*
