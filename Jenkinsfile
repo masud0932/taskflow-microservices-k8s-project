@@ -3,7 +3,6 @@ pipeline {
 
     options {
         timestamps()
-        ansiColor('xterm')
         disableConcurrentBuilds()
     }
 
@@ -91,6 +90,7 @@ stage('Update GitOps Manifests') {
         }
     }
 }
+}
 
     post {
         success {
@@ -105,5 +105,4 @@ stage('Update GitOps Manifests') {
             cleanWs()
         }
     }
-}
 }
