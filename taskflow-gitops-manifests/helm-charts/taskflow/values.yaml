@@ -9,8 +9,8 @@ aws:
   region: eu-central-1
 
 secrets:
-  dbSecretArn: "arn:aws:secretsmanager:eu-central-1:349036691410:secret:rds!db-84b0f841-d84e-441f-82de-0d21e68dc7e9-kmfdRr" 
-  rabbitmqSecretName: "taskflow/dev/rabbitmq"
+  dbSecretArn: "arn:aws:secretsmanager:eu-central-1:349036691410:secret:rds!db-84b0f841-d84e-441f-82de-0d21e68dc7e9-kmfdRr"
+  rabbitmqSecretName: "taskflow/dev/rabbitmq/v1"
 
 database:
   host: "taskflow-dev-postgres.c7wwocm2et85.eu-central-1.rds.amazonaws.com"
@@ -18,8 +18,8 @@ database:
   name: "taskflow"
 
 rabbitmq:
-  host: "amqps://b-7bb640aa-4619-40c5-b715-bcf94f29134a.mq.eu-central-1.on.aws:5671"
-  port: "5672"
+  host: "b-7bb640aa-4619-40c5-b715-bcf94f29134a.mq.eu-central-1.on.aws"
+  port: "5671"
 
 ingress:
   enabled: true
