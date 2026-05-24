@@ -106,3 +106,4 @@ stage('Update GitOps Manifests') {
         }
     }
 }
+}
