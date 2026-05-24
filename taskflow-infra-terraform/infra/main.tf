@@ -91,7 +91,6 @@ module "jenkins" {
   public_subnet_id  = module.vpc.public_subnet_ids[0]
 
   instance_type     = "t3.medium"
-  key_name          = var.jenkins_key_name
 
   tags = local.common_tags
 }

@@ -58,6 +58,7 @@ resource "aws_instance" "jenkins" {
   subnet_id              = var.public_subnet_id
   key_name               = aws_key_pair.jenkins.key_name
   vpc_security_group_ids = [aws_security_group.jenkins.id]
+  associate_public_ip_address = true
 
   user_data = file("${path.module}/user_data.sh")
 

@@ -37,3 +37,11 @@ output "oidc_provider_arn" {
 output "oidc_provider_url" {
   value = module.eks.oidc_provider_url
 }
+
+output "jenkins_public_ip" {
+  value = module.jenkins.public_ip
+}
+
+output "jenkins_url" {
+  value = module.jenkins.url
+}

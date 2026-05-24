@@ -2,7 +2,7 @@
 
 dnf update -y
 
-dnf install -y java-17-amazon-corretto docker git
+sudo dnf install -y java-21-amazon-corretto docker git
 
 systemctl enable docker
 systemctl start docker
