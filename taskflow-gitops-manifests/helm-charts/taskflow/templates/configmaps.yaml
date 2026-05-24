@@ -11,6 +11,7 @@ data:
   DB_NAME: {{ $.Values.database.name | quote }}
   DB_SSL: "true"
   PGSSLMODE: "require"
+  NODE_TLS_REJECT_UNAUTHORIZED: "0"
   RABBITMQ_HOST: {{ $.Values.rabbitmq.host | quote }}
   RABBITMQ_PORT: {{ $.Values.rabbitmq.port | quote }}
 ---
