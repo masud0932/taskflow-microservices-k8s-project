@@ -1,8 +1,8 @@
 namespace: dev
 
 image:
-  registry: masudrana09
-  tag: v1
+  registry: "349036691410.dkr.ecr.eu-central-1.amazonaws.com"
+  tag: "13"
   pullPolicy: IfNotPresent
 
 aws:
