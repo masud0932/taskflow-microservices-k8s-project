@@ -30,24 +30,38 @@ ingress:
 services:
   frontend:
     image: taskflow-dev/frontend
+    port: 80
+    replicas: 2
 
   api-gateway:
     image: taskflow-dev/api-gateway
+    port: 4000
+    replicas: 2
 
   auth-service:
     image: taskflow-dev/auth-service
+    port: 3001
+    replicas: 2
 
   user-service:
     image: taskflow-dev/user-service
+    port: 3002
+    replicas: 2
 
   task-service:
     image: taskflow-dev/task-service
+    port: 3003
+    replicas: 2
 
   project-service:
     image: taskflow-dev/project-service
+    port: 3004
+    replicas: 2
 
   notification-service:
     image: taskflow-dev/notification-service
+    port: 3005
+    replicas: 2
 
 resources:
   requests:
