@@ -16,7 +16,7 @@ pipeline {
 
         GITOPS_REPO = 'https://github.com/masud0932/taskflow-microservices-k8s-project.git'
         GITOPS_BRANCH = 'main'
-        GIT_CREDENTIALS_ID = 'github-token' # Replace with your Jenkins credential ID for GitHub access
+        GIT_CREDENTIALS_ID = 'github-token' 
     }
 
     stages {
