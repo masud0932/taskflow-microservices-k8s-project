@@ -5,45 +5,87 @@ pipeline {
         AWS_REGION = 'eu-central-1'
         AWS_ACCOUNT_ID = 'YOUR_AWS_ACCOUNT_ID'
         IMAGE_TAG = "${BUILD_NUMBER}"
-
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
-        GITOPS_REPO = 'https://github.com/masudrana09/taskflow-gitops-manifests.git'
-        GITOPS_BRANCH = 'main'
-        GITOPS_CREDENTIALS = 'github-credentials'
+        APP_DIR = 'taskflow-microservices-app'
+        INFRA_DIR = 'taskflow-infra-terraform/infra'
+        GITOPS_DIR = 'taskflow-gitops-manifests'
+	ECR_PREFIX = 'taskflow-dev'
     }
 
     stages {
-        stage('Checkout App Code') {
+        stage('Checkout Code') {
             steps {
                 checkout scm
             }
         }
 
-    stage('Ensure ECR Repositories Exist') {
-        steps {
-            sh '''
-                for repo in \
-                taskflow-frontend \
-                taskflow-api-gateway \
-                taskflow-auth-service \
-                taskflow-user-service \
-                taskflow-task-service \
-                taskflow-project-service \
-                taskflow-notification-service
-                do
-                aws ecr describe-repositories \
-                    --repository-names $repo \
-                    --region $AWS_REGION >/dev/null 2>&1 || \
-                aws ecr create-repository \
-                    --repository-name $repo \
-                    --region $AWS_REGION
-                done
-            '''
+        stage('Terraform Init') {
+            when {
+                changeset "taskflow-infra-terraform/**"
+            }
+            steps {
+                dir("${INFRA_DIR}") {
+                    sh 'terraform init'
+                }
+            }
         }
-    }
+
+        stage('Terraform Validate') {
+            when {
+                changeset "taskflow-infra-terraform/**"
+            }
+            steps {
+                dir("${INFRA_DIR}") {
+                    sh '''
+                        terraform fmt -check
+                        terraform validate
+                    '''
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            when {
+                changeset "taskflow-infra-terraform/**"
+            }
+            steps {
+                dir("${INFRA_DIR}") {
+                    sh 'terraform plan -out=tfplan'
+                }
+            }
+        }
+
+        stage('Manual Approval for Terraform Apply') {
+            when {
+                allOf {
+                    branch 'main'
+                    changeset "taskflow-infra-terraform/**"
+                }
+            }
+            steps {
+                input message: 'Approve Terraform apply?', ok: 'Apply'
+            }
+        }
+
+        stage('Terraform Apply') {
+            when {
+                allOf {
+                    branch 'main'
+                    changeset "taskflow-infra-terraform/**"
+                }
+            }
+            steps {
+                dir("${INFRA_DIR}") {
+                    sh 'terraform apply tfplan'
+                }
+            }
+        }
 
         stage('AWS ECR Login') {
+            when {
+                changeset "taskflow-microservices-app/**"
+            }
             steps {
                 sh '''
                     aws ecr get-login-password --region $AWS_REGION | \
@@ -53,56 +95,61 @@ pipeline {
         }
 
         stage('Build Images') {
+            when {
+                changeset "taskflow-microservices-app/**"
+            }
             steps {
                 sh '''
-                    docker build -t $ECR_REGISTRY/taskflow-frontend:$IMAGE_TAG ./frontend
-                    docker build -t $ECR_REGISTRY/taskflow-api-gateway:$IMAGE_TAG ./services/api-gateway
-                    docker build -t $ECR_REGISTRY/taskflow-auth-service:$IMAGE_TAG ./services/auth-service
-                    docker build -t $ECR_REGISTRY/taskflow-user-service:$IMAGE_TAG ./services/user-service
-                    docker build -t $ECR_REGISTRY/taskflow-task-service:$IMAGE_TAG ./services/task-service
-                    docker build -t $ECR_REGISTRY/taskflow-project-service:$IMAGE_TAG ./services/project-service
-                    docker build -t $ECR_REGISTRY/taskflow-notification-service:$IMAGE_TAG ./services/notification-service
+                    docker build -t $ECR_REGISTRY/$ECR_PREFIX/frontend:$IMAGE_TAG $APP_DIR/frontend
+
+		    docker build -t $ECR_REGISTRY/$ECR_PREFIX/api-gateway:$IMAGE_TAG $APP_DIR/services/api-gateway
+
+		    docker build -t $ECR_REGISTRY/$ECR_PREFIX/auth-service:$IMAGE_TAG $APP_DIR/services/auth-service
+
+		    docker build -t $ECR_REGISTRY/$ECR_PREFIX/user-service:$IMAGE_TAG $APP_DIR/services/user-service
+
+		    docker build -t $ECR_REGISTRY/$ECR_PREFIX/task-service:$IMAGE_TAG $APP_DIR/services/task-service
+
+		    docker build -t $ECR_REGISTRY/$ECR_PREFIX/project-service:$IMAGE_TAG $APP_DIR/services/project-service
+
+		    docker build -t $ECR_REGISTRY/$ECR_PREFIX/notification-service:$IMAGE_TAG $APP_DIR/services/notification-service
                 '''
             }
         }
 
         stage('Push Images to ECR') {
+            when {
+                changeset "taskflow-microservices-app/**"
+            }
             steps {
                 sh '''
-                    docker push $ECR_REGISTRY/taskflow-frontend:$IMAGE_TAG
-                    docker push $ECR_REGISTRY/taskflow-api-gateway:$IMAGE_TAG
-                    docker push $ECR_REGISTRY/taskflow-auth-service:$IMAGE_TAG
-                    docker push $ECR_REGISTRY/taskflow-user-service:$IMAGE_TAG
-                    docker push $ECR_REGISTRY/taskflow-task-service:$IMAGE_TAG
-                    docker push $ECR_REGISTRY/taskflow-project-service:$IMAGE_TAG
-                    docker push $ECR_REGISTRY/taskflow-notification-service:$IMAGE_TAG
+		    docker push $ECR_REGISTRY/$ECR_PREFIX/frontend:$IMAGE_TAG
+		    docker push $ECR_REGISTRY/$ECR_PREFIX/api-gateway:$IMAGE_TAG
+		    docker push $ECR_REGISTRY/$ECR_PREFIX/auth-service:$IMAGE_TAG
+		    docker push $ECR_REGISTRY/$ECR_PREFIX/user-service:$IMAGE_TAG
+		    docker push $ECR_REGISTRY/$ECR_PREFIX/task-service:$IMAGE_TAG
+		    docker push $ECR_REGISTRY/$ECR_PREFIX/project-service:$IMAGE_TAG
+		    docker push $ECR_REGISTRY/$ECR_PREFIX/notification-service:$IMAGE_TAG
                 '''
             }
         }
 
-        stage('Update GitOps Repo') {
+        stage('Update GitOps Manifests') {
+            when {
+                changeset "taskflow-microservices-app/**"
+            }
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: "${GITOPS_CREDENTIALS}",
-                    usernameVariable: 'GIT_USER',
-                    passwordVariable: 'GIT_TOKEN'
-                )]) {
+                dir("${GITOPS_DIR}") {
                     sh '''
-                        rm -rf taskflow-gitops-manifests
-
-                        git clone https://$GIT_USER:$GIT_TOKEN@github.com/masudrana09/taskflow-gitops-manifests.git
-
-                        cd taskflow-gitops-manifests
-
-                        sed -i "s|registry:.*|registry: $ECR_REGISTRY|g" helm/taskflow/values.yaml
-                        sed -i "s|tag:.*|tag: $IMAGE_TAG|g" helm/taskflow/values.yaml
+                        sed -i "s|registry:.*|registry: $ECR_REGISTRY|g" helm-charts/taskflow/values.yaml
+                        sed -i "s|tag:.*|tag: $IMAGE_TAG|g" helm-charts/taskflow/values.yaml
 
                         git config user.email "jenkins@taskflow.local"
                         git config user.name "Jenkins CI"
 
-                        git add helm/taskflow/values.yaml
+                        git add helm-charts/taskflow/values.yaml
                         git commit -m "Update image tag to $IMAGE_TAG" || echo "No changes to commit"
-                        git push origin $GITOPS_BRANCH
+                        git push origin main
                     '''
                 }
             }
@@ -110,14 +157,6 @@ pipeline {
     }
 
     post {
-        success {
-            echo 'Images pushed to ECR and GitOps repo updated. Argo CD will sync automatically.'
-        }
-
-        failure {
-            echo 'Pipeline failed.'
-        }
-
         always {
             sh 'docker logout $ECR_REGISTRY || true'
         }
