@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_REGION = 'eu-central-1'
-        AWS_ACCOUNT_ID = 'YOUR_AWS_ACCOUNT_ID'
+        AWS_ACCOUNT_ID = '349036691410'
         IMAGE_TAG = "${BUILD_NUMBER}"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
@@ -102,17 +102,17 @@ pipeline {
                 sh '''
                     docker build -t $ECR_REGISTRY/$ECR_PREFIX/frontend:$IMAGE_TAG $APP_DIR/frontend
 
-		    docker build -t $ECR_REGISTRY/$ECR_PREFIX/api-gateway:$IMAGE_TAG $APP_DIR/services/api-gateway
+		            docker build -t $ECR_REGISTRY/$ECR_PREFIX/api-gateway:$IMAGE_TAG $APP_DIR/services/api-gateway
 
-		    docker build -t $ECR_REGISTRY/$ECR_PREFIX/auth-service:$IMAGE_TAG $APP_DIR/services/auth-service
+                    docker build -t $ECR_REGISTRY/$ECR_PREFIX/auth-service:$IMAGE_TAG $APP_DIR/services/auth-service
 
-		    docker build -t $ECR_REGISTRY/$ECR_PREFIX/user-service:$IMAGE_TAG $APP_DIR/services/user-service
+                    docker build -t $ECR_REGISTRY/$ECR_PREFIX/user-service:$IMAGE_TAG $APP_DIR/services/user-service
 
-		    docker build -t $ECR_REGISTRY/$ECR_PREFIX/task-service:$IMAGE_TAG $APP_DIR/services/task-service
+                    docker build -t $ECR_REGISTRY/$ECR_PREFIX/task-service:$IMAGE_TAG $APP_DIR/services/task-service
 
-		    docker build -t $ECR_REGISTRY/$ECR_PREFIX/project-service:$IMAGE_TAG $APP_DIR/services/project-service
+                    docker build -t $ECR_REGISTRY/$ECR_PREFIX/project-service:$IMAGE_TAG $APP_DIR/services/project-service
 
-		    docker build -t $ECR_REGISTRY/$ECR_PREFIX/notification-service:$IMAGE_TAG $APP_DIR/services/notification-service
+                    docker build -t $ECR_REGISTRY/$ECR_PREFIX/notification-service:$IMAGE_TAG $APP_DIR/services/notification-service
                 '''
             }
         }
@@ -123,13 +123,13 @@ pipeline {
             }
             steps {
                 sh '''
-		    docker push $ECR_REGISTRY/$ECR_PREFIX/frontend:$IMAGE_TAG
-		    docker push $ECR_REGISTRY/$ECR_PREFIX/api-gateway:$IMAGE_TAG
-		    docker push $ECR_REGISTRY/$ECR_PREFIX/auth-service:$IMAGE_TAG
-		    docker push $ECR_REGISTRY/$ECR_PREFIX/user-service:$IMAGE_TAG
-		    docker push $ECR_REGISTRY/$ECR_PREFIX/task-service:$IMAGE_TAG
-		    docker push $ECR_REGISTRY/$ECR_PREFIX/project-service:$IMAGE_TAG
-		    docker push $ECR_REGISTRY/$ECR_PREFIX/notification-service:$IMAGE_TAG
+                    docker push $ECR_REGISTRY/$ECR_PREFIX/frontend:$IMAGE_TAG
+                    docker push $ECR_REGISTRY/$ECR_PREFIX/api-gateway:$IMAGE_TAG
+                    docker push $ECR_REGISTRY/$ECR_PREFIX/auth-service:$IMAGE_TAG
+                    docker push $ECR_REGISTRY/$ECR_PREFIX/user-service:$IMAGE_TAG
+                    docker push $ECR_REGISTRY/$ECR_PREFIX/task-service:$IMAGE_TAG
+                    docker push $ECR_REGISTRY/$ECR_PREFIX/project-service:$IMAGE_TAG
+                    docker push $ECR_REGISTRY/$ECR_PREFIX/notification-service:$IMAGE_TAG
                 '''
             }
         }
