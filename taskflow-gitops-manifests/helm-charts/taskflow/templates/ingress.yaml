@@ -8,12 +8,39 @@ metadata:
     alb.ingress.kubernetes.io/scheme: {{ .Values.ingress.scheme }}
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+
 spec:
   ingressClassName: {{ .Values.ingress.className }}
+
   rules:
     - http:
         paths:
-          - path: /api
+
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 4000
+
+          - path: /tasks
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 4000
+
+          - path: /projects
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 4000
+
+          - path: /notifications
             pathType: Prefix
             backend:
               service:
