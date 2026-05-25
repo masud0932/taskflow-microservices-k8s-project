@@ -2,7 +2,7 @@ namespace: dev
 
 image:
   registry: "349036691410.dkr.ecr.eu-central-1.amazonaws.com"
-  tag: "15"
+  tag: "16"
   pullPolicy: IfNotPresent
 
 aws:
