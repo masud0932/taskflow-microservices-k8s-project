@@ -1,23 +1,20 @@
-{{- range $name, $svc := .Values.services }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ $name }}-monitor
+  name: api-gateway-monitor
   namespace: monitoring
   labels:
     release: monitoring
 spec:
   namespaceSelector:
     matchNames:
-      - {{ $.Values.namespace }}
+      - dev
 
   selector:
     matchLabels:
-      app: {{ $name }}
+      app: api-gateway
 
   endpoints:
     - port: http
       path: /metrics
       interval: 15s
----
-{{- end }}
