@@ -4,6 +4,8 @@ kind: Service
 metadata:
   name: {{ $name }}
   namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ $name }}
 spec:
   type: ClusterIP
   selector:
