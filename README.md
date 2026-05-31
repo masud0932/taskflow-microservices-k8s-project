@@ -111,44 +111,50 @@ curl -X POST http://localhost:4000/auth/login \
 
 ## Real Deployment
 
+-------------
+
 ## Phase 1: AWS Infrastructure Provisioning with Terraform
 
 This phase provisions the complete AWS infrastructure for the Taskflow Microservices Platform using Terraform. The infrastructure is designed following production-style cloud architecture and Infrastructure as Code (IaC) best practices.
 
-### Architecture Overview
-
-The infrastructure layer provisions:
-
-- AWS VPC with public/private subnets
-- Amazon EKS cluster
-- Managed node groups
-- Amazon ECR repositories
-- Amazon RDS PostgreSQL
-- Amazon MQ (RabbitMQ)
-- IAM roles and IRSA
-- AWS Secrets Manager integration
-- Terraform remote backend (S3 + DynamoDB + KMS)
+The infrastructure was implemented using a three-stage Terraform deployment approach. Separating the infrastructure into Bootstrap, Core Infrastructure, and Platform Add-ons allows resources to be provisioned in the correct dependency order while keeping the codebase modular, maintainable, and easier to troubleshoot.
 
 ### Infrastructure Structure
 
-```bash
+```text
 terraform/
 ├── bootstrap/
 ├── infra/
 └── platform/
 ```
 
-#### Step 1: Bootstrap Layer
+The infrastructure is organized into three independent Terraform stages to manage resource dependencies and simplify operations.
 
-The bootstrap layer creates the Terraform remote backend.
+* **Bootstrap** provisions the Terraform backend resources (S3 and DynamoDB) required for remote state management.
+* **Infrastructure** provisions the core AWS resources, including networking, EKS, RDS, RabbitMQ, ECR, and Secrets Manager.
+* **Platform** installs and configures Kubernetes add-ons and operational components on the EKS cluster.
 
-##### Resources Created
+```text
+Bootstrap
+    ↓
+Infrastructure
+    ↓
+Platform
+```
 
-- S3 bucket for Terraform state
-- DynamoDB table for state locking
-- KMS key for state encryption
+This structure ensures that foundational resources are created before dependent components, while also improving maintainability, deployment reliability, and separation of responsibilities.
 
-##### Run
+## Step 1: Bootstrap Infrastructure
+
+The bootstrap layer provisions the resources required to manage Terraform itself.
+
+### Implemented Resources
+
+* S3 Remote State Backend
+* DynamoDB State Lock Table
+* Terraform Backend Configuration
+
+### Run
 
 ```bash
 cd terraform/bootstrap
@@ -156,74 +162,58 @@ terraform init
 terraform apply
 ```
 
-#### Step 2: Infrastructure Layer
+### State Management Flow
 
-The infrastructure layer provisions the AWS cloud resources.
-
-##### Resources Created
-
-###### 1. Networking
-
-- VPC
-- Public subnets
-- Private subnets
-- NAT Gateway
-- Route tables
-- Internet Gateway
-
-###### 2. Kubernetes
-
-- Amazon EKS cluster
-- Managed node group
-- IAM roles
-- OIDC provider for IRSA
-
-###### 3. Container Registry
-
-Amazon ECR repositories for:
-
-- frontend
-- api-gateway
-- auth-service
-- user-service
-- task-service
-- project-service
-- notification-service
-
-###### 4. Database
-
-- Amazon RDS PostgreSQL
-- RDS-managed master password
-- Automatic secret storage in AWS Secrets Manager
-
-###### 5. Messaging
-
-- Amazon MQ RabbitMQ broker
-- RabbitMQ credentials stored in AWS Secrets Manager
-
-##### Remote Terraform State
-
-Terraform state is securely stored using:
-
-- Amazon S3
-- DynamoDB locking
-- AWS KMS encryption
-
-##### Secret Management
-
-This project uses:
-
-```bash
-AWS Secrets Manager
-↓
-External Secrets Operator
-↓
-Kubernetes Secrets
-↓
-Application Pods
+```text
+Terraform
+      ↓
+S3 Backend
+      ↓
+Terraform State File
+      ↓
+DynamoDB State Lock
 ```
 
-Secrets are never hardcoded in Kubernetes manifests or Git repositories.
+### Outcome
+
+A centralized and secure remote state management system is established before provisioning any cloud resources.
+
+---
+
+## Step 2: Core Infrastructure
+
+The infrastructure layer provisions the foundational AWS resources required to run the application platform.
+
+### Networking
+
+Implemented resources:
+
+* VPC
+* Public Subnets
+* Private Subnets
+* Internet Gateway
+* NAT Gateway
+* Route Tables
+* Security Groups
+
+### Amazon EKS
+
+Implemented resources:
+
+* Amazon EKS Cluster
+* Managed Node Groups
+* IAM Roles and Policies
+* OIDC Provider
+* IRSA Configuration
+
+### Data & Messaging Services
+
+Implemented resources:
+
+* Amazon RDS PostgreSQL
+* Amazon MQ RabbitMQ
+* AWS Secrets Manager
+* Amazon ECR Repositories
 
 #### Run Infrastructure Layer
 
@@ -234,135 +224,56 @@ terraform plan
 terraform apply
 ```
 
-#### Important Terraform Outputs
+### Infrastructure Deployment Flow
 
-After successful deployment:
-
-```bash
-terraform output
+```text
+Terraform Apply
+      ↓
+VPC & Networking
+      ↓
+Amazon EKS
+      ↓
+RDS PostgreSQL
+      ↓
+RabbitMQ
+      ↓
+Secrets Manager
+      ↓
+Amazon ECR
 ```
 
-Important outputs:
+### Outcome
 
-- EKS cluster name
-- VPC ID
-- OIDC provider ARN
-- RDS endpoint
-- RDS master secret ARN
-- RabbitMQ endpoint
-- ECR repository URLs
+A fully operational AWS platform is provisioned, including networking, Kubernetes, database, messaging, secret management, and container registry services.
 
-These outputs are later used by the platform and GitOps layers.
+---
 
-#### Important Features
-- Infrastructure as Code with Terraform
-- Production-style VPC design
-- Private networking for backend services
-- Secure secret management
-- IAM Roles for Service Accounts (IRSA)
-- Encrypted Terraform state
-- Container image vulnerability scanning in ECR
-- Modular Terraform architecture
+## Step 3: Platform Add-ons
 
-#### Step 3: Kubernetes Platform & Addons Deployment
-
-This phase installs the core Kubernetes platform components inside the Amazon EKS cluster using Terraform and Helm.
+The add-ons layer installs and configures Kubernetes platform components on the EKS cluster using Terraform and Helm..
 
 The platform layer prepares the cluster for secure application deployment, GitOps, ingress management, monitoring, and secret synchronization.
 
-##### Platform Architecture
+### Implemented Components
 
-```bash
-terraform/platform
-   ↓
-Connects to existing EKS cluster
-   ↓
-Installs Kubernetes platform tools
-```
+#### Cluster Integration
 
-##### Platform Structure
+* AWS Load Balancer Controller
+* EBS CSI Driver
+* External Secrets Operator
 
-```bash
-terraform/platform/
-├── provider.tf
-├── versions.tf
-├── variables.tf
-├── terraform.tfvars
-├── main.tf
-├── outputs.tf
-└── modules/
-      ├── addons/
-            ├── argoCD/
-            ├── AWS Load Balancer Controller/
-            ├── External Secrets Operator (ESO)/
-```
+#### GitOps Platform
 
-##### Components Installed
+* Argo CD
 
-###### 1. AWS Load Balancer Controller
+#### Monitoring & Observability
 
-The AWS Load Balancer Controller integrates Kubernetes Ingress resources with AWS Application Load Balancers (ALB).
+* Prometheus
+* Grafana
+* Alertmanager
+* ServiceMonitors
 
-###### Features
-
-- Automatic ALB provisioning
-- Ingress integration
-- Target group management
-- External traffic routing
-
-##### 2. External Secrets Operator (ESO)
-
-External Secrets Operator synchronizes secrets from AWS Secrets Manager into Kubernetes Secrets.
-
-##### Secret Flow
-
-```bash
-AWS Secrets Manager
-   ↓
-External Secrets Operator
-   ↓
-Kubernetes Secret
-   ↓
-Application Pods
-```
-
-##### Used For
-
-- RDS credentials
-- RabbitMQ credentials
-- Grafana credentials
-
-##### 3. Argo CD
-
-Argo CD enables GitOps-based Kubernetes deployment.
-
-##### Features
-
-- Continuous deployment
-- GitOps synchronization
-- Automatic drift detection
-- Self-healing deployments
-
-##### Deployment Flow
-
-```bash
-GitHub Repository
-   ↓
-Argo CD
-   ↓
-EKS Cluster
-```
-
-### 4. Namespaces Created
-
-The platform layer creates the following namespaces:
-
-- argocd
-- external-secrets
-- monitoring
-- dev
-
-##### Run Platform Layer
+### Run Platform Layer
 
 ```bash
 cd terraform/platform
@@ -372,32 +283,33 @@ terraform plan
 terraform apply
 ```
 
-##### Production Features
+### Add-on Deployment Flow
 
-GitOps-ready Kubernetes platform
-Secure secret synchronization
-IRSA-based AWS authentication
-ALB-based ingress architecture
-Namespace isolation
-Production-style addon separation
-Modular Terraform platform layer
+```text
+EKS Cluster
+      ↓
+AWS Load Balancer Controller
+      ↓
+EBS CSI Driver
+      ↓
+External Secrets Operator
+      ↓
+Argo CD
+      ↓
+Prometheus & Grafana
+```
 
-## Phase 3: CI/CD workflow
+### Outcome
+
+The EKS cluster is extended with ingress management, persistent storage integration, secret synchronization, GitOps deployment automation, and full monitoring capabilities.
+
+## Phase 2: CI/CD Pipeline
 
 ### Step 1: CI/CD Automation with Jenkins
 
-This phase implements the Continuous Integration and Continuous Deployment (CI/CD) pipeline for the Taskflow Microservices Platform using Jenkins.
+A Jenkins pipeline was implemented to automate the build and delivery process of all microservices. GitHub webhooks trigger the pipeline whenever code is pushed to the repository.
 
-The pipeline automates:
-
-- Application build
-- Docker image creation
-- Security scanning
-- Image push to Amazon ECR
-- GitOps manifest updates
-- Automated Kubernetes deployment through Argo CD
-
-#### CI/CD Architecture
+#### Pipeline Workflow
 
 ```bash
 Developer
@@ -415,58 +327,38 @@ Docker Image Build
 Push Image to Amazon ECR
    ↓
 Update GitOps Repository
-   ↓
-Argo CD detects changes
-   ↓
-Deploy to Amazon EKS
 ```
 
-#### Jenkins Responsibilities
+1. Jenkins checks out the latest source code from GitHub.
+2. Docker images are built for all microservices using their respective Dockerfiles.
+3. Images are tagged with the Jenkins build number.
+4. Built images are pushed to Amazon ECR.
+5. Kubernetes deployment manifests in the GitOps repository are automatically updated with the new image tags.
+6. Updated manifests are committed and pushed back to the GitOps repository.
 
-The Jenkins pipeline performs:
+#### Implemented Components
 
-- Source code checkout
-- Application build
-- Docker image build
-- Docker image tagging
-- Push images to Amazon ECR
-- Update Helm chart image tags
-- Commit changes to GitOps repository
+* Jenkins Server
+* GitHub Webhook Integration
+* Docker Image Build Automation
+* Amazon ECR Image Registry
+* Automated Manifest Update Process
+* Multi-Service Image Versioning
 
+#### Outcome
 
-#### Security & Secret Handling
+Every code commit automatically produces a new container image and updates the deployment configuration without any manual intervention.
 
-The pipeline uses:
+### Step 2: GitOps Continuous Deployment with Argo CD
 
-- AWS IAM roles
-- Kubernetes IRSA
-- AWS Secrets Manager
-- External Secrets Operator
-
-Sensitive credentials are not stored directly in Git repositories.
-
-#### Production Features
-
-- Automated CI/CD pipeline
-- GitOps deployment workflow
-- Immutable container image deployment
-- Automated ECR integration
-- Kubernetes continuous delivery
-- Secure AWS authentication
-- Infrastructure and application separation
-- Production-style deployment automation
-
-
-## Step 2: GitOps Continuous Deployment with Argo CD
-
-This phase deploys the Taskflow microservices platform into Amazon EKS using GitOps practices with Argo CD and Helm charts.
+Argo CD was implemented as the GitOps deployment engine to continuously synchronize the Kubernetes cluster with the desired state stored in Git.
 
 All Kubernetes manifests and Helm configurations are stored in a dedicated GitOps repository, enabling automated deployment, synchronization, and self-healing.
 
-### GitOps Architecture
+#### Deployment Workflow
 
 ```bash
-GitHub Repository
+GitHub Repository Updated by Jenkins
    ↓
 Argo CD
    ↓
@@ -475,166 +367,393 @@ Amazon EKS Cluster
 Kubernetes Resources
 ```
 
-### GitOps Repository Structure
+1. Jenkins updates image tags in the GitOps repository.
+2. Changes are pushed to the GitOps repository.
+3. Argo CD continuously monitors the repository.
+4. When a new commit is detected, Argo CD compares the desired state with the current cluster state.
+5. Argo CD automatically synchronizes the changes.
+6. Kubernetes performs a rolling update of the affected deployments.
+7. New application versions become available without downtime.
 
-```bash
-taskflow-gitops-manifests/
-├── argocd/
-│   ├── external-secrets-app.yaml
-│   ├── monitoring-application.yaml
-│   └── taskflow-dev-application.yaml
-│
-├── helm-charts/
-│   └── taskflow/
-│       ├── Chart.yaml
-│       ├── values.yaml
-│       └── templates/
-│           ├── configmaps.yaml
-│           ├── deployments.yaml
-│           ├── services.yaml
-│           ├── ingress.yaml
-│           ├── hpa.yaml
-│           └── external-secrets/
-│               ├── clustersecretstore.yaml
-│               ├── db-externalsecret.yaml
-│               └── rabbitmq-externalsecret.yaml
-│
-└── monitoring/
-    └── kube-prometheus-stack-values.yaml
-```
-### Continuous Delivery Flow
+#### Implemented Components
 
-```bash
-Developer
-   ↓
-Push code to GitHub
-   ↓
-Jenkins CI/CD pipeline
-   ↓
-Build Docker images
-   ↓
-Push images to Amazon ECR
-   ↓
-Update Helm chart image tags
-   ↓
-Git commit to GitOps repository
-   ↓
-Argo CD detects changes
-   ↓
-Automatic deployment to EKS
-```
+* Argo CD
+* GitOps Repository
+* Automated Synchronization
+* Kubernetes Rolling Updates
+* Self-Healing Configuration Management
 
-### Argo CD Applications
+#### Outcome
 
-#### Monitoring Application
+The Kubernetes cluster state is fully managed through Git. Any deployment change is version-controlled, auditable, and automatically applied to the EKS cluster, ensuring consistent and reliable application delivery.
 
-Deploys Prometheus and Grafana using the kube-prometheus-stack Helm chart.
+## Secret Management
 
-```bash
-monitoring-application.yaml
-```
+Sensitive application credentials are centrally managed using AWS Secrets Manager and automatically synchronized into Kubernetes through the External Secrets Operator (ESO). This approach eliminates hardcoded credentials from source code, container images, and Kubernetes manifests while providing a secure and scalable secret management solution.
 
-#### Taskflow Application
+### Secret Management Flow
 
-Deploys the Taskflow microservices Helm chart.
-
-```bash
-taskflow-dev-application.yaml
-```
-
-### Microservices Deployed
-
-The platform deploys:
-
-- Frontend
-- API Gateway
-- Auth Service
-- User Service
-- Task Service
-- Project Service
-- Notification Service
-
-#### Secret Management Flow
-
-```bash
+```text
 AWS Secrets Manager
-   ↓
+        ↓
 External Secrets Operator
-   ↓
+        ↓
 Kubernetes Secrets
-   ↓
+        ↓
 Application Pods
 ```
 
-#### Database Flow
+### Database Credential Flow
 
-```bash
+```text
 Amazon RDS PostgreSQL
-   ↓
+        ↓
 AWS Secrets Manager
-   ↓
+        ↓
 External Secrets Operator
-   ↓
+        ↓
 taskflow-db-secret
-   ↓
+        ↓
 Backend Services
 ```
 
-#### RabbitMQ Flow
+#### Implementation Details
 
-```bash
+* Amazon RDS master credentials are stored in AWS Secrets Manager.
+* External Secrets Operator continuously synchronizes secrets into the Kubernetes cluster.
+* Kubernetes Secrets are automatically created and updated.
+* Backend services consume database credentials through environment variables.
+* No credentials are stored in Git repositories or container images.
+
+### RabbitMQ Credential Flow
+
+```text
 Amazon MQ RabbitMQ
-   ↓
+        ↓
 AWS Secrets Manager
-   ↓
+        ↓
 External Secrets Operator
-   ↓
+        ↓
 taskflow-rabbitmq-secret
-   ↓
-task-service / notification-service
+        ↓
+Task Service / Notification Service
 ```
 
-#### Ingress Flow
+#### Implementation Details
+
+* RabbitMQ broker credentials are securely stored in AWS Secrets Manager.
+* External Secrets Operator synchronizes credentials into Kubernetes Secrets.
+* Microservices access RabbitMQ credentials through Kubernetes Secret references.
+* Secret updates can be propagated without modifying application code.
+
+### Components Used
+
+* AWS Secrets Manager
+* External Secrets Operator (ESO)
+* IAM Roles for Service Accounts (IRSA)
+* Kubernetes Secrets
+* Amazon RDS PostgreSQL
+* Amazon MQ RabbitMQ
+
+### Benefits
+
+* Centralized secret management
+* No hardcoded credentials
+* GitOps-compatible secret synchronization
+* Secure integration with AWS services
+* Automated secret distribution to Kubernetes workloads
+
+## Prometheus & Grafana Monitoring
+
+Implemented a production-style observability stack as the final observability layer on Amazon EKS using **kube-prometheus-stack (Prometheus, Grafana, Alertmanager, Node Exporter, and kube-state-metrics)**, fully managed through Argo CD GitOps workflows.
+
+Prometheus was used to collect metrics from the cluster, including pods, nodes, namespaces, and services.
+
+Grafana was used to visualise these metrics through dashboards, giving visibility into the health and performance of the Kubernetes environment.
+
+### What Was Implemented
+
+* Deployed Prometheus and Grafana using Helm on EKS.
+* Instrumented all Node.js microservices using the **prom-client** library.
+* Exposed custom `/metrics` endpoints for Prometheus scraping.
+* Configured ServiceMonitors for automatic service discovery.
+* Exposed Grafana through an AWS Application Load Balancer (ALB).
+* Created dashboards for both Kubernetes infrastructure and application-level metrics.
+
+### Metrics Collected
+
+**Infrastructure & Kubernetes**
+
+* Node CPU and memory utilization
+* Pod resource consumption
+* Container restarts
+* Deployment availability
+* Cluster health and capacity
+
+**Application Metrics**
+
+* HTTP request count
+* Request latency and response times
+* HTTP status code distribution
+* Service uptime
+* Process CPU and memory usage
+
+### Outcome
+
+The monitoring solution provides end-to-end visibility across the EKS cluster and Node.js microservices, enabling proactive monitoring, faster troubleshooting, performance analysis, and real-time operational insights.
+
+
+## Key Implementation Challenges and Solutions
+
+During the implementation of the TaskFlow Microservices project, several real-world infrastructure, Kubernetes, GitOps, CI/CD, and application deployment issues were encountered and resolved.
+
+### 1. Terraform Remote State Checksum Mismatch
+
+**Problem**
+
+Terraform failed with a remote state checksum mismatch between S3 and DynamoDB.
 
 ```bash
-User
-   ↓
-AWS Application Load Balancer
-   ↓
-Ingress Resource
-   ↓
-Frontend / API Gateway
+state data in S3 does not have the expected content
 ```
 
-The AWS Load Balancer Controller automatically provisions the ALB from Kubernetes Ingress resources.
+**Cause**
 
-### Monitoring Stack
+The Terraform state stored in S3 and the checksum digest stored in DynamoDB became inconsistent after a previous operation.
 
-The monitoring stack includes:
+**Solution**
 
-- Prometheus
-- Grafana
-- Alertmanager
-- kube-state-metrics
-- node-exporter
+Only the related DynamoDB digest item was removed after verifying the S3 state file. Terraform was then able to refresh and continue using the remote backend correctly.
 
-### Auto Sync & Self Healing
+---
 
-Argo CD continuously monitors the Git repository.
+### 2. EKS Kubernetes Provider Unauthorized
 
-#### Features
-Automatic synchronization
-Drift detection
-Self-healing
-Automatic pruning of removed resources
+**Problem**
 
-### Production Features
-GitOps-based Kubernetes deployment
-Declarative infrastructure and application management
-Automated deployment synchronization
-Secure secret management
-ALB ingress integration
-Horizontal Pod Autoscaling
-Centralized monitoring stack
-Production-style microservices deployment
+Terraform and Kubernetes commands failed with:
 
+```bash
+Unauthorized
+Kubernetes cluster unreachable
+The server has asked for client credentials
+```
+
+**Cause**
+
+The AWS IAM user had permission to access AWS resources, but it was not automatically mapped as a Kubernetes cluster administrator.
+
+**Solution**
+
+The kubeconfig was updated and proper EKS cluster admin access was added.
+
+```bash
+aws eks update-kubeconfig \
+  --region eu-central-1 \
+  --name taskflow-dev-eks
+```
+
+---
+
+### 3. Argo CD Application Not Visible
+
+**Problem**
+
+Argo CD was installed successfully, but no applications were displayed.
+
+**Cause**
+
+The Argo CD `Application` manifest had not been applied.
+
+**Solution**
+
+Applied the Argo CD application manifest manually.
+
+```bash
+kubectl apply -f taskflow-dev-application.yaml
+```
+
+---
+
+### 4. Helm Chart Not Detected Correctly
+
+**Problem**
+
+Argo CD treated the application as a plain directory instead of a Helm chart.
+
+**Cause**
+
+The Argo CD Application manifest was missing the correct Helm configuration.
+
+**Solution**
+
+Added the Helm value file configuration.
+
+```yaml
+helm:
+  valueFiles:
+    - values.yaml
+```
+
+### 5. Invalid Kubernetes Resource Names
+
+**Problem**
+
+Kubernetes rejected service names such as:
+
+```bash
+apiGateway is invalid
+authService is invalid
+```
+
+**Cause**
+
+Kubernetes resource names must follow DNS naming rules and should use lowercase letters with hyphens.
+
+**Solution**
+
+Renamed services using lowercase dash format:
+
+```text
+api-gateway
+auth-service
+user-service
+task-service
+project-service
+notification-service
+```
+
+---
+
+### 6. Invalid Service Port `0`
+
+**Problem**
+
+Kubernetes failed to create services because some ports were rendered as `0`.
+
+```bash
+Service port: Invalid value: 0
+```
+
+**Cause**
+
+Required service port values were missing in `values.yaml`.
+
+**Solution**
+
+Added all required service ports.
+
+```yaml
+api-gateway: 4000
+auth-service: 3001
+user-service: 3002
+task-service: 3003
+project-service: 3004
+notification-service: 3005
+frontend: 80
+```
+
+---
+
+### 7. External Secrets API Version Mismatch
+
+**Problem**
+
+ExternalSecret resources failed because the API version was not found.
+
+```bash
+external-secrets.io/v1beta1 not found
+```
+
+**Cause**
+
+The installed External Secrets Operator CRDs supported `external-secrets.io/v1`, not `v1beta1`.
+
+**Solution**
+
+Updated ExternalSecret manifests:
+
+```yaml
+apiVersion: external-secrets.io/v1
+```
+
+---
+
+### 8. External Secrets IAM Permission Denied
+
+**Problem**
+
+External Secrets Operator failed to read the RDS-managed secret.
+
+```bash
+AccessDeniedException: not authorized to perform secretsmanager:GetSecretValue
+```
+
+**Cause**
+
+The IAM policy allowed only `taskflow/*` secrets, but the AWS-managed RDS secret used the `rds!db-*` naming pattern.
+
+**Solution**
+
+Added permission for RDS-managed secrets:
+
+```json
+"arn:aws:secretsmanager:${region}:${account}:secret:rds!*"
+```
+
+---
+
+### 9. Missing Kubernetes Secrets
+
+**Problem**
+
+Pods failed with missing secret errors.
+
+```bash
+secret "taskflow-db-secret" not found
+```
+
+**Cause**
+
+External Secrets Operator failed to sync secrets from AWS Secrets Manager due to IAM and secret mapping issues.
+
+**Solution**
+
+Fixed the ESO IAM policy and corrected the ExternalSecret definitions. After that, Kubernetes Secrets were created successfully and pods were able to start.
+
+---
+
+### 10. EKS Pod Scheduling Limit
+
+**Problem**
+
+Some pods stayed in `Pending` state.
+
+```bash
+Too many pods
+```
+
+**Cause**
+
+The EKS node group had only two worker nodes, which did not provide enough pod capacity for application, monitoring, Argo CD, and ESO workloads.
+
+**Solution**
+
+Increased the node group desired size from 2 to 3.
+
+```bash
+aws eks update-nodegroup-config \
+  --cluster-name taskflow-dev-eks \
+  --nodegroup-name <nodegroup-name> \
+  --scaling-config desiredSize=3
+```
+
+---
+
+## Conclusion
+
+This project demonstrates the end-to-end implementation of a production-style cloud-native microservices platform on AWS using modern DevOps and Platform Engineering practices.
+
+The solution combines Infrastructure as Code with Terraform, containerization with Docker, orchestration through Amazon EKS, GitOps-based deployments using Argo CD, CI/CD automation with Jenkins, secure secret management via AWS Secrets Manager and External Secrets Operator, and full observability through Prometheus and Grafana.
+
+The final platform successfully delivers a secure, automated, scalable, and observable microservices environment that reflects industry best practices and demonstrates practical expertise in AWS Cloud, Kubernetes, DevOps, and Platform Engineering.

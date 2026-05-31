@@ -12,7 +12,7 @@ spec:
       targetRevision: 70.4.2
       helm:
         valueFiles:
-          - $values/taskflow-gitops-manifests/monitoring/kube-prometheus-stack-values.yaml
+          - $taskflow-gitops-manifests/monitoring/kube-prometheus-stack-values.yaml
 
     - repoURL: https://github.com/masud0932/taskflow-microservices-k8s-project.git
       targetRevision: main

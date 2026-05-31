@@ -5,9 +5,9 @@ metadata:
   name: taskflow-ingress
   namespace: {{ .Values.namespace }}
   annotations:
-    alb.ingress.kubernetes.io/scheme: {{ .Values.ingress.scheme }}
-    alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+    alb.ingress.kubernetes.io/scheme: {{ .Values.ingress.scheme }} # Load balancer scheme (internet-facing or internal)
+    alb.ingress.kubernetes.io/target-type: ip # Target type (ip)
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]' # Listen on port 80 for HTTP traffic
 
 spec:
   ingressClassName: {{ .Values.ingress.className }}
@@ -48,7 +48,7 @@ spec:
                 port:
                   number: 4000
 
-          - path: /
+          - path: /            # Catch-all for frontend routes that didn't match the above API paths
             pathType: Prefix
             backend:
               service:

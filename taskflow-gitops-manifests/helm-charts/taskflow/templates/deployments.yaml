@@ -22,16 +22,17 @@ spec:
             - containerPort: {{ $svc.port }}
 
           envFrom:
-            - configMapRef:
+            - configMapRef: # Reference the ConfigMap for this service to inject environment variables
                 name: {{ $name }}-config
 
-            {{- if or (eq $name "auth-service") (eq $name "user-service") (eq $name "task-service") (eq $name "project-service") }}
-            - secretRef:
+            {{- if or (eq $name "auth-service") (eq $name "user-service") (eq $name "task-service") (eq $name "project-service") }} 
+            - secretRef: # Reference the database credentials secret for services that need to connect to the database
                 name: taskflow-db-secret
             {{- end }}
 
             {{- if or (eq $name "task-service") (eq $name "notification-service") }}
-            - secretRef:
+            - secretRef: # Reference the RabbitMQ credentials secret for services that need to connect to RabbitMQ
+
                 name: taskflow-rabbitmq-secret
             {{- end }}
 

@@ -10,14 +10,14 @@ data:
   DB_HOST: {{ $.Values.database.host | quote }}
   DB_PORT: {{ $.Values.database.port | quote }}
   DB_NAME: {{ $.Values.database.name | quote }}
-  DB_SSL: "true"
-  PGSSLMODE: "require"
-  NODE_TLS_REJECT_UNAUTHORIZED: "0"
+  DB_SSL: "true" # Enable SSL for database connections 
+  PGSSLMODE: "require" # Enforce SSL for PostgreSQL connections
+  NODE_TLS_REJECT_UNAUTHORIZED: "0" # Disable TLS certificate validation for PostgreSQL connections
 
   RABBITMQ_HOST: {{ $.Values.rabbitmq.host | quote }}
   RABBITMQ_PORT: {{ $.Values.rabbitmq.port | quote }}
 
-  {{- if eq $name "api-gateway" }}
+  {{- if eq $name "api-gateway" }} # Only set these environment variables for the API Gateway, as it's the only service that needs to know how to reach the other services
   AUTH_SERVICE_URL: "http://auth-service:3001"
   USER_SERVICE_URL: "http://user-service:3002"
   TASK_SERVICE_URL: "http://task-service:3003"

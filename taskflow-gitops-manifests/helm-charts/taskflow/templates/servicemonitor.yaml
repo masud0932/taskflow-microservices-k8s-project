@@ -1,20 +1,21 @@
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
+# This is a Helm template for creating a ServiceMonitor resource to monitor the API Gateway service using Prometheus.
+apiVersion: monitoring.coreos.com/v1 # API version for ServiceMonitor resource
+kind: ServiceMonitor # ServiceMonitor for API Gateway 
 metadata:
   name: api-gateway-monitor
-  namespace: monitoring
+  namespace: monitoring # Namespace where the ServiceMonitor will be created
   labels:
-    release: monitoring
+    release: monitoring # Label to match the Prometheus instance selector
 spec:
   namespaceSelector:
     matchNames:
-      - dev
+      - dev # Namespace where the API Gateway service is deployed
 
   selector:
     matchLabels:
-      app: api-gateway
+      app: api-gateway # Label of the API Gateway service
 
   endpoints:
-    - port: http
-      path: /metrics
-      interval: 15s
+    - port: http # Port name defined in the API Gateway service
+      path: /metrics # Metrics endpoint exposed by the API Gateway
+      interval: 15s # Scrape interval for Prometheus to collect metrics

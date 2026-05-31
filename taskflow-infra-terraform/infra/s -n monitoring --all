@@ -1,0 +1,66 @@
+{
+    "LoadBalancers": [
+        {
+            "LoadBalancerArn": "arn:aws:elasticloadbalancing:eu-central-1:349036691410:loadbalancer/app/k8s-monitori-monitori-9aa22b5bb6/28889ec4c9fbb9e1",
+            "DNSName": "k8s-monitori-monitori-9aa22b5bb6-1906622695.eu-central-1.elb.amazonaws.com",
+            "CanonicalHostedZoneId": "Z215JYRZR1TBD5",
+            "CreatedTime": "2026-05-24T16:41:21.377000+00:00",
+            "LoadBalancerName": "k8s-monitori-monitori-9aa22b5bb6",
+            "Scheme": "internet-facing",
+            "VpcId": "vpc-069e1d7391998780d",
+            "State": {
+                "Code": "active"
+            },
+            "Type": "application",
+            "AvailabilityZones": [
+                {
+                    "ZoneName": "eu-central-1b",
+                    "SubnetId": "subnet-05457113045ea9af5",
+                    "LoadBalancerAddresses": []
+                },
+                {
+                    "ZoneName": "eu-central-1a",
+                    "SubnetId": "subnet-0e674f02936e784d5",
+                    "LoadBalancerAddresses": []
+                }
+            ],
+            "SecurityGroups": [
+                "sg-01cc80602b134af5e",
+                "sg-05c2f2a8f8c017020"
+            ],
+            "IpAddressType": "ipv4",
+            "EnablePrefixForIpv6SourceNat": "off"
+        },
+        {
+            "LoadBalancerArn": "arn:aws:elasticloadbalancing:eu-central-1:349036691410:loadbalancer/app/k8s-dev-taskflow-496a3e2d33/7c87632bb0927419",
+            "DNSName": "k8s-dev-taskflow-496a3e2d33-381360199.eu-central-1.elb.amazonaws.com",
+            "CanonicalHostedZoneId": "Z215JYRZR1TBD5",
+            "CreatedTime": "2026-05-24T20:07:02.270000+00:00",
+            "LoadBalancerName": "k8s-dev-taskflow-496a3e2d33",
+            "Scheme": "internet-facing",
+            "VpcId": "vpc-069e1d7391998780d",
+            "State": {
+                "Code": "active"
+            },
+            "Type": "application",
+            "AvailabilityZones": [
+                {
+                    "ZoneName": "eu-central-1b",
+                    "SubnetId": "subnet-05457113045ea9af5",
+                    "LoadBalancerAddresses": []
+                },
+                {
+                    "ZoneName": "eu-central-1a",
+                    "SubnetId": "subnet-0e674f02936e784d5",
+                    "LoadBalancerAddresses": []
+                }
+            ],
+            "SecurityGroups": [
+                "sg-01cc80602b134af5e",
+                "sg-04d5f3c38902c3015"
+            ],
+            "IpAddressType": "ipv4",
+            "EnablePrefixForIpv6SourceNat": "off"
+        }
+    ]
+}
