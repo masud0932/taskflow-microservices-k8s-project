@@ -10,7 +10,7 @@ This project showcases practical experience with AWS cloud infrastructure, Kuber
 
 The platform is deployed on Amazon EKS using a GitOps-driven Kubernetes architecture integrated with managed AWS services for networking, database, messaging, secret management, and observability.
 
-## High-Level Architecture
+## Application Deployment Architecture
 
 The following diagram represents the high-level deployment architecture of the Taskflow platform on AWS.
 
@@ -228,8 +228,6 @@ DynamoDB State Lock
 
 A production-ready Terraform backend is established using Amazon S3 for remote state storage and DynamoDB for state locking. This ensures secure state management, prevents concurrent infrastructure changes, supports team collaboration, and provides a reliable foundation for provisioning and maintaining AWS resources through Terraform.
 
----
-
 ## Step 2: Core Infrastructure
 
 The infrastructure layer provisions the foundational AWS resources required to run the application platform.
@@ -298,7 +296,6 @@ Amazon ECR
 
 A fully automated AWS platform is provisioned using Terraform, delivering a secure networking layer, managed Kubernetes environment, database services, messaging infrastructure, container registry, and centralized secret management. This infrastructure serves as the foundation for GitOps-based application deployment, monitoring, and operational automation on Amazon EKS.
 
----
 
 ## Step 3: Platform Add-ons
 
@@ -566,7 +563,7 @@ kubectl get svc -n dev
 kubectl get ingress -n dev
 kubectl get applications -n argocd
 
-## Phase 3: Prometheus & Grafana Monitoring
+# Phase 3: Prometheus & Grafana Monitoring
 
 Implemented a production-style observability stack as the final observability layer on Amazon EKS using **kube-prometheus-stack (Prometheus, Grafana, Alertmanager, Node Exporter, and kube-state-metrics)**, fully managed through Argo CD GitOps workflows.
 
@@ -574,7 +571,7 @@ Prometheus was used to collect metrics from the cluster, including pods, nodes, 
 
 Grafana was used to visualise these metrics through dashboards, giving visibility into the health and performance of the Kubernetes environment.
 
-### What Was Implemented
+## What Was Implemented
 
 * Deployed Prometheus and Grafana using Helm on EKS.
 * Instrumented all Node.js microservices using the **prom-client** library.
@@ -583,7 +580,7 @@ Grafana was used to visualise these metrics through dashboards, giving visibilit
 * Exposed Grafana through an AWS Application Load Balancer (ALB).
 * Created dashboards for both Kubernetes infrastructure and application-level metrics.
 
-### Metrics Collected
+## Metrics Collected
 
 **Infrastructure & Kubernetes**
 
@@ -601,16 +598,16 @@ Grafana was used to visualise these metrics through dashboards, giving visibilit
 * Service uptime
 * Process CPU and memory usage
 
-### Outcome
+## Outcome
 
 The monitoring solution provides end-to-end visibility across the EKS cluster and Node.js microservices, enabling proactive monitoring, faster troubleshooting, performance analysis, and real-time operational insights.
 
 
-## Secret Management
+# Secret Management
 
 Sensitive application credentials are centrally managed using AWS Secrets Manager and automatically synchronized into Kubernetes through the External Secrets Operator (ESO). This approach eliminates hardcoded credentials from source code, container images, and Kubernetes manifests while providing a secure and scalable secret management solution.
 
-### Secret Management Flow
+## Secret Management Flow
 
 ```text
 AWS Secrets Manager
@@ -622,7 +619,7 @@ Kubernetes Secrets
 Application Pods
 ```
 
-### Database Credential Flow
+## Database Credential Flow
 
 ```text
 Amazon RDS PostgreSQL
@@ -636,7 +633,7 @@ taskflow-db-secret
 Backend Services
 ```
 
-#### Implementation Details
+### Implementation Details
 
 * Amazon RDS master credentials are stored in AWS Secrets Manager.
 * External Secrets Operator continuously synchronizes secrets into the Kubernetes cluster.
@@ -644,7 +641,7 @@ Backend Services
 * Backend services consume database credentials through environment variables.
 * No credentials are stored in Git repositories or container images.
 
-### RabbitMQ Credential Flow
+## RabbitMQ Credential Flow
 
 ```text
 Amazon MQ RabbitMQ
@@ -658,14 +655,14 @@ taskflow-rabbitmq-secret
 Task Service / Notification Service
 ```
 
-#### Implementation Details
+### Implementation Details
 
 * RabbitMQ broker credentials are securely stored in AWS Secrets Manager.
 * External Secrets Operator synchronizes credentials into Kubernetes Secrets.
 * Microservices access RabbitMQ credentials through Kubernetes Secret references.
 * Secret updates can be propagated without modifying application code.
 
-### Components Used
+## Components Used
 
 * AWS Secrets Manager
 * External Secrets Operator (ESO)
@@ -674,7 +671,7 @@ Task Service / Notification Service
 * Amazon RDS PostgreSQL
 * Amazon MQ RabbitMQ
 
-### Benefits
+## Benefits
 
 * Centralized secret management
 * No hardcoded credentials
@@ -683,11 +680,11 @@ Task Service / Notification Service
 * Automated secret distribution to Kubernetes workloads
 
 
-## Key Implementation Challenges and Solutions
+# Key Implementation Challenges and Solutions
 
 During the implementation of the TaskFlow Microservices project, several real-world infrastructure, Kubernetes, GitOps, CI/CD, and application deployment issues were encountered and resolved.
 
-### 1. Terraform Remote State Checksum Mismatch
+## 1. Terraform Remote State Checksum Mismatch
 
 **Problem**
 
@@ -707,7 +704,7 @@ Only the related DynamoDB digest item was removed after verifying the S3 state f
 
 ---
 
-### 2. EKS Kubernetes Provider Unauthorized
+## 2. EKS Kubernetes Provider Unauthorized
 
 **Problem**
 
@@ -735,7 +732,7 @@ aws eks update-kubeconfig \
 
 ---
 
-### 3. Argo CD Application Not Visible
+## 3. Argo CD Application Not Visible
 
 **Problem**
 
@@ -755,7 +752,7 @@ kubectl apply -f taskflow-dev-application.yaml
 
 ---
 
-### 4. Helm Chart Not Detected Correctly
+## 4. Helm Chart Not Detected Correctly
 
 **Problem**
 
@@ -774,8 +771,9 @@ helm:
   valueFiles:
     - values.yaml
 ```
+---
 
-### 5. Invalid Kubernetes Resource Names
+## 5. Invalid Kubernetes Resource Names
 
 **Problem**
 
@@ -802,10 +800,9 @@ task-service
 project-service
 notification-service
 ```
-
 ---
 
-### 6. Invalid Service Port `0`
+## 6. Invalid Service Port `0`
 
 **Problem**
 
@@ -832,10 +829,9 @@ project-service: 3004
 notification-service: 3005
 frontend: 80
 ```
-
 ---
 
-### 7. External Secrets API Version Mismatch
+## 7. External Secrets API Version Mismatch
 
 **Problem**
 
@@ -856,10 +852,9 @@ Updated ExternalSecret manifests:
 ```yaml
 apiVersion: external-secrets.io/v1
 ```
-
 ---
 
-### 8. External Secrets IAM Permission Denied
+## 8. External Secrets IAM Permission Denied
 
 **Problem**
 
@@ -880,10 +875,9 @@ Added permission for RDS-managed secrets:
 ```json
 "arn:aws:secretsmanager:${region}:${account}:secret:rds!*"
 ```
-
 ---
 
-### 9. Missing Kubernetes Secrets
+## 9. Missing Kubernetes Secrets
 
 **Problem**
 
@@ -903,7 +897,7 @@ Fixed the ESO IAM policy and corrected the ExternalSecret definitions. After tha
 
 ---
 
-### 10. EKS Pod Scheduling Limit
+## 10. EKS Pod Scheduling Limit
 
 **Problem**
 
@@ -928,9 +922,7 @@ aws eks update-nodegroup-config \
   --scaling-config desiredSize=3
 ```
 
----
-
-## Future Improvements
+# Future Improvements
 
 * Implement Horizontal Pod Autoscaler (HPA) for automatic workload scaling based on CPU and memory utilization.
 * Add HTTPS support using cert-manager and TLS certificates.
@@ -943,7 +935,7 @@ aws eks update-nodegroup-config \
 * Introduce service mesh integration for advanced traffic management and observability.
 * Optimize infrastructure costs through cluster autoscaling and resource tuning.
 
-## Conclusion
+# Conclusion
 
 This project demonstrates the end-to-end implementation of a production-style cloud-native microservices platform on AWS using modern DevOps and Platform Engineering practices.
 
