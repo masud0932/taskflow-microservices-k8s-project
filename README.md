@@ -164,7 +164,7 @@ curl -X POST http://localhost:4000/auth/login \
   -d '{"email":"----","password":"----"}'
 ```
 
-# Real Deployment
+# Production Deployment on AWS
 
 # Phase 1: AWS Infrastructure Provisioning with Terraform
 
