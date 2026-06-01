@@ -32,11 +32,12 @@ Amazon EKS Cluster
    ├── Prometheus
    ├── Grafana
    └── Alertmanager
-   │
-   ├── Amazon RDS PostgreSQL
-   ├── Amazon MQ RabbitMQ
-   ├── AWS Secrets Manager
-   └── Amazon ECR
+
+AWS Managed Services 
+      ├── Amazon RDS PostgreSQL 
+      ├── Amazon MQ RabbitMQ 
+      ├── AWS Secrets Manager 
+      └── Amazon ECR
 ```
 
 ## Key Features
@@ -111,7 +112,7 @@ taskflow-microservices-project/
 * **taskflow-gitops-manifests** → Kubernetes manifests, Helm charts, and Argo CD applications
 
 
-# Phase 1: Initial Setup and Local Development
+# Local Development Setup
 
 ## 1. Clone Repository
 
@@ -152,7 +153,7 @@ sudo docker compose up --build
 ```bash
 curl -X POST http://localhost:4000/auth/signup \
   -H "Content-Type: application/json" \
-  -d '{"name":"----","email":"----","password":"----"
+  -d '{"name":"----","email":"----","password":"----"}'
 ```
 
 ### Login
@@ -562,8 +563,9 @@ kubectl get pods -n dev
 kubectl get svc -n dev
 kubectl get ingress -n dev
 kubectl get applications -n argocd
+```
 
-# Phase 3: Prometheus & Grafana Monitoring
+# Phase 3: Monitoring & Observability
 
 Implemented a production-style observability stack as the final observability layer on Amazon EKS using **kube-prometheus-stack (Prometheus, Grafana, Alertmanager, Node Exporter, and kube-state-metrics)**, fully managed through Argo CD GitOps workflows.
 
