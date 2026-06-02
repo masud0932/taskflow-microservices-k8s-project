@@ -33,11 +33,11 @@ Amazon EKS Cluster
    ├── Grafana
    └── Alertmanager
 
-AWS Managed Services 
-      ├── Amazon RDS PostgreSQL 
-      ├── Amazon MQ RabbitMQ 
-      ├── AWS Secrets Manager 
-      └── Amazon ECR
+AWS Managed Services
+   ├── Amazon RDS PostgreSQL
+   ├── Amazon MQ RabbitMQ
+   ├── AWS Secrets Manager
+   └── Amazon ECR
 ```
 
 ## Key Features
@@ -97,7 +97,7 @@ taskflow-microservices-project/
 |    ├──infra/
 |    ├──platform/
 |
-├── taskflow-gitops-manifests/
+├── taskflow-gitops-manifests/   # Separate GitOps repository
 |    ├──argocd/
 |    ├──helm-charts/
 |    ├──monitoring/
@@ -120,7 +120,7 @@ taskflow-microservices-project/
 git clone https://github.com/masud0932/taskflow-microservices-project.git
 cd taskflow-microservices-project
 ```
-## 2: Install Required Tools
+## 2. Install Required Tools
 
 Install the following tools before running the project:
 
@@ -153,7 +153,7 @@ sudo docker compose up --build
 ```bash
 curl -X POST http://localhost:4000/auth/signup \
   -H "Content-Type: application/json" \
-  -d '{"name":"----","email":"----","password":"----"}'
+  -d '{"name":"<USER_NAME>","email":"<USER_EMAIL>","password":"<USER_PASSWORD>"}'
 ```
 
 ### Login
@@ -161,7 +161,7 @@ curl -X POST http://localhost:4000/auth/signup \
 ```bash
 curl -X POST http://localhost:4000/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"----","password":"----"}'
+  -d '{"email":"<USER_EMAIL>","password":"<USER_PASSWORD>"}'
 ```
 
 # Production Deployment on AWS
@@ -368,44 +368,6 @@ kubectl get svc -n monitoring
 kubectl get applications -n argocd
 ```
 
-### Access Argo CD UI
-
-```bash id="8b9l2v"
-kubectl port-forward svc/argocd-server -n argocd 8080:443
-```
-
-Argo CD UI:
-
-```text id="xpp6j0"
-https://localhost:8080
-```
-
-Get Argo CD admin password:
-
-```bash id="9j3w6r"
-kubectl -n argocd get secret argocd-initial-admin-secret \
--o jsonpath="{.data.password}" | base64 -d
-```
-
-### Access Grafana UI
-
-```bash id="d7tx6k"
-kubectl port-forward svc/monitoring-grafana -n monitoring 3000:80
-```
-
-Grafana UI:
-
-```text id="0ejd1n"
-http://localhost:3000
-```
-
-Get Grafana admin password:
-
-```bash id="z01h5k"
-kubectl get secret monitoring-grafana -n monitoring \
--o jsonpath="{.data.admin-password}" | base64 -d
-```
-
 ### Result
 
 All platform components were successfully deployed and verified on Amazon EKS, providing GitOps deployment automation, AWS-native ingress management, secret synchronization, persistent storage integration, and full monitoring capabilities for the Kubernetes platform.
@@ -452,7 +414,7 @@ A Jenkins pipeline was implemented to automate the build and delivery process of
 
 #### Pipeline Workflow
 
-```bash
+```text
 Developer
     ↓
 GitHub Repository
@@ -539,6 +501,27 @@ Rolling Update
 - Self-Healing Configuration Management
 - Drift Detection
 
+### Access Argo CD UI
+
+Argo CD was accessed using port forwarding to verify application synchronization, deployment status, and GitOps reconciliation.
+
+```bash
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+
+Argo CD UI:
+
+```text
+https://localhost:8080
+```
+
+Get Argo CD admin password:
+
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret \
+-o jsonpath="{.data.password}" | base64 -d
+```
+
 ### Outcome
 
 A fully automated GitOps workflow is implemented using Argo CD and Helm. Deployment manifests are continuously synchronized from the GitOps repository to Amazon EKS, enabling version-controlled releases, automated rolling updates, configuration drift correction, and reliable application delivery across the Kubernetes platform.
@@ -569,9 +552,9 @@ kubectl get applications -n argocd
 
 Implemented a production-style observability stack as the final observability layer on Amazon EKS using **kube-prometheus-stack (Prometheus, Grafana, Alertmanager, Node Exporter, and kube-state-metrics)**, fully managed through Argo CD GitOps workflows.
 
-Prometheus was used to collect metrics from the cluster, including pods, nodes, namespaces, and services.
+Prometheus collects metrics from Kubernetes workloads, nodes, namespaces, and application services.
 
-Grafana was used to visualise these metrics through dashboards, giving visibility into the health and performance of the Kubernetes environment.
+Grafana visualizes infrastructure and application metrics through operational dashboards.
 
 ## What Was Implemented
 
@@ -599,6 +582,39 @@ Grafana was used to visualise these metrics through dashboards, giving visibilit
 * HTTP status code distribution
 * Service uptime
 * Process CPU and memory usage
+
+## Access Monitoring UIs
+
+### Access Prometheus UI
+
+```bash
+kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n monitoring 9090:9090
+```
+
+Prometheus UI:
+
+```text
+http://localhost:9090
+```
+
+### Access Grafana UI
+
+```bash
+kubectl port-forward svc/monitoring-grafana -n monitoring 3000:80
+```
+
+Grafana UI:
+
+```text
+http://localhost:3000
+```
+
+Get Grafana admin password:
+
+```bash
+kubectl get secret monitoring-grafana -n monitoring \
+-o jsonpath="{.data.admin-password}" | base64 -d
+```
 
 ## Outcome
 
