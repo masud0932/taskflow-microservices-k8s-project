@@ -6,11 +6,11 @@ The platform consists of multiple containerized microservices integrated with Am
 
 This project showcases practical experience with AWS cloud infrastructure, Kubernetes operations, Infrastructure as Code, CI/CD automation, GitOps workflows, observability, and production-grade DevOps practices.
 
-# Architecture Overview
+## Architecture Overview
 
 The platform is deployed on Amazon EKS using a GitOps-driven Kubernetes architecture integrated with managed AWS services for networking, database, messaging, secret management, and observability.
 
-## Application Deployment Architecture
+### Application Deployment Architecture
 
 The following diagram represents the high-level deployment architecture of the Taskflow platform on AWS.
 
@@ -40,7 +40,7 @@ AWS Managed Services
    └── Amazon ECR
 ```
 
-## Key Features
+### Key Features
 
 * Infrastructure provisioning is fully automated through Terraform
 * Amazon EKS-based microservices architecture
@@ -55,7 +55,7 @@ AWS Managed Services
 This architecture provides a scalable, automated, and production-style Kubernetes platform that demonstrates Infrastructure as Code, CI/CD automation, GitOps deployment, centralized secret management, and full-stack observability on AWS.
 
 
-# Technology Stack
+## Technology Stack
 
 | Category                | Technologies                                   |
 | ----------------------- | ---------------------------------------------- |
@@ -77,7 +77,7 @@ This architecture provides a scalable, automated, and production-style Kubernete
 | Version Control         | Git, GitHub                                    |
 
 
-# Project Structure
+## Project Structure
 
 ```bash
 taskflow-microservices-project/
@@ -105,22 +105,22 @@ taskflow-microservices-project/
 ├── Jenkinsfile
 └── README.md
 ```
-## Repository Responsibilities
+### Repository Responsibilities
 
 * **taskflow-microservices-app** → Application source code and Dockerfiles
 * **taskflow-infra-terraform** → AWS infrastructure provisioning with Terraform
 * **taskflow-gitops-manifests** → Kubernetes manifests, Helm charts, and Argo CD applications
 
 
-# Local Development Setup
+## Local Development Setup
 
-## 1. Clone Repository
+### 1. Clone Repository
 
 ```bash
 git clone https://github.com/masud0932/taskflow-microservices-project.git
 cd taskflow-microservices-project
 ```
-## 2. Install Required Tools
+### 2. Install Required Tools
 
 Install the following tools before running the project:
 
@@ -131,7 +131,7 @@ Install the following tools before running the project:
 -   Terraform
 -   AWS CLI
 
-## 3. Start Local Development Environment
+### 3. Start Local Development Environment
 
 Run all services locally using Docker Compose:
 
@@ -140,15 +140,15 @@ cd taskflow-microservices-app
 sudo docker compose up --build
 ```
 
-## 4. Access Services
+### 4. Access Services
 
 - Frontend: http://localhost:3000
 - API Gateway: http://localhost:4000
 - RabbitMQ UI: http://localhost:15672
 
-## 5. API Testing
+### 5. API Testing
 
-### Signup
+#### Signup
 
 ```bash
 curl -X POST http://localhost:4000/auth/signup \
@@ -156,7 +156,7 @@ curl -X POST http://localhost:4000/auth/signup \
   -d '{"name":"<USER_NAME>","email":"<USER_EMAIL>","password":"<USER_PASSWORD>"}'
 ```
 
-### Login
+#### Login
 
 ```bash
 curl -X POST http://localhost:4000/auth/login \
@@ -164,13 +164,13 @@ curl -X POST http://localhost:4000/auth/login \
   -d '{"email":"<USER_EMAIL>","password":"<USER_PASSWORD>"}'
 ```
 
-# Production Deployment on AWS
+## Production Deployment on AWS
 
-# Phase 1: AWS Infrastructure Provisioning with Terraform
+## Phase 1: AWS Infrastructure Provisioning with Terraform
 
 This phase provisions the complete AWS infrastructure for the Taskflow Microservices Platform using Terraform. The environment follows a modular Infrastructure as Code (IaC) approach, with resources deployed in dependency order through separate Terraform stages.
 
-## Infrastructure Structure
+### Infrastructure Structure
 
 ```text
 terraform/
@@ -195,17 +195,17 @@ Platform
 
 This deployment model ensures that prerequisite resources are available before dependent components are provisioned, while keeping the infrastructure modular and easier to manage.
 
-## Step 1: Bootstrap Infrastructure
+### Step 1: Bootstrap Infrastructure
 
 The bootstrap layer provisions the resources required to manage Terraform itself.
 
-### Implemented Resources
+#### Implemented Resources
 
 * S3 Remote State Backend
 * DynamoDB State Lock Table
 * Terraform Backend Configuration
 
-### Run
+#### Run
 
 ```bash
 cd taskflow-infra-terraform/bootstrap
@@ -213,7 +213,7 @@ terraform init
 terraform apply
 ```
 
-### State Management Flow
+#### State Management Flow
 
 ```text
 Terraform
@@ -225,15 +225,15 @@ Terraform State File
 DynamoDB State Lock
 ```
 
-### Outcome
+#### Outcome
 
 A production-ready Terraform backend is established using Amazon S3 for remote state storage and DynamoDB for state locking. This ensures secure state management, prevents concurrent infrastructure changes, supports team collaboration, and provides a reliable foundation for provisioning and maintaining AWS resources through Terraform.
 
-## Step 2: Core Infrastructure
+### Step 2: Core Infrastructure
 
 The infrastructure layer provisions the foundational AWS resources required to run the application platform.
 
-### Networking
+#### Networking
 
 Implemented resources:
 
@@ -245,7 +245,7 @@ Implemented resources:
 * Route Tables
 * Security Groups
 
-### Amazon EKS
+#### Amazon EKS
 
 Implemented resources:
 
@@ -255,7 +255,7 @@ Implemented resources:
 * OIDC Provider
 * IRSA Configuration
 
-### Data & Messaging Services
+#### Data & Messaging Services
 
 Implemented resources:
 
@@ -264,7 +264,7 @@ Implemented resources:
 * AWS Secrets Manager
 * Amazon ECR Repositories
 
-### Run Infrastructure Layer
+#### Run Infrastructure Layer
 
 ```bash
 cd taskflow-infra-terraform/infra
@@ -273,7 +273,7 @@ terraform plan
 terraform apply
 ```
 
-### Infrastructure Deployment Flow
+#### Infrastructure Deployment Flow
 
 ```text
 Terraform Apply
@@ -293,18 +293,18 @@ AWS Secrets Manager
 Amazon ECR
 ```
 
-### Outcome
+#### Outcome
 
 A fully automated AWS platform is provisioned using Terraform, delivering a secure networking layer, managed Kubernetes environment, database services, messaging infrastructure, container registry, and centralized secret management. This infrastructure serves as the foundation for GitOps-based application deployment, monitoring, and operational automation on Amazon EKS.
 
 
-## Step 3: Platform Add-ons
+### Step 3: Platform Add-ons
 
 The add-ons layer installs and configures Kubernetes platform components on the EKS cluster using Terraform and Helm.
 
 The platform layer prepares the cluster for secure application deployment, GitOps, ingress management, monitoring, and secret synchronization.
 
-### Implemented Components
+#### Implemented Components
 
 * AWS Load Balancer Controller
 * EBS CSI Driver
@@ -312,7 +312,7 @@ The platform layer prepares the cluster for secure application deployment, GitOp
 * Argo CD
 * kube-prometheus-stack
 
-### Run Platform Layer
+#### Run Platform Layer
 
 ```bash
 cd taskflow-infra-terraform/platform
@@ -321,7 +321,7 @@ terraform plan
 terraform apply
 ```
 
-### Add-on Deployment Flow
+#### Add-on Deployment Flow
 
 ```text
 EKS Cluster
@@ -340,15 +340,15 @@ Prometheus
       ↓
 Grafana & Alertmanager
 ```
-### Outcome
+#### Outcome
 
 A fully operational Kubernetes platform is established on Amazon EKS, integrating AWS-native networking, persistent storage, secret management, GitOps automation, and observability. This platform serves as the foundation for automated application delivery, secure workload deployment, and real-time monitoring of the Taskflow microservices environment.
 
-## Platform Verification
+### Platform Verification
 
 After provisioning the platform layer, the Kubernetes add-ons were validated to ensure the operational components were successfully deployed and functional on the EKS cluster.
 
-### Verification Checks
+#### Verification Checks
 
 * Argo CD server and application controller running
 * Prometheus and Grafana pods healthy
@@ -357,7 +357,7 @@ After provisioning the platform layer, the Kubernetes add-ons were validated to 
 * EBS CSI Driver available for persistent storage provisioning
 * Kubernetes namespaces and services created correctly
 
-### Validation Commands
+#### Validation Commands
 
 ```bash id="ym34bw"
 kubectl get pods -n argocd
@@ -368,18 +368,18 @@ kubectl get svc -n monitoring
 kubectl get applications -n argocd
 ```
 
-### Result
+#### Result
 
 All platform components were successfully deployed and verified on Amazon EKS, providing GitOps deployment automation, AWS-native ingress management, secret synchronization, persistent storage integration, and full monitoring capabilities for the Kubernetes platform.
 
 
-## Phase 2: CI/CD Pipeline
+### Phase 2: CI/CD Pipeline
 
-### Jenkins Server Setup
+#### Jenkins Server Setup
 
 Jenkins was deployed on an EC2 instance and configured as the CI automation server for the Taskflow platform. The server is responsible for building Docker images, pushing images to Amazon ECR, and updating the GitOps repository for automated Kubernetes deployments.
 
-#### Access Jenkins UI
+##### Access Jenkins UI
 
 ```text
 http://<jenkins-public-ip>:8080
@@ -391,7 +391,7 @@ The Jenkins public endpoint can be retrieved from Terraform outputs:
 terraform output jenkins_url
 ```
 
-#### Required Jenkins Plugins
+##### Required Jenkins Plugins
 
 * Git
 * Pipeline
@@ -400,7 +400,7 @@ terraform output jenkins_url
 * Credentials Binding
 * SSH Agent
 
-#### Jenkins Credentials Configuration
+##### Jenkins Credentials Configuration
 
 The following credentials were configured in Jenkins:
 
@@ -408,11 +408,11 @@ The following credentials were configured in Jenkins:
 * GitHub access token for repository access
 * SSH private key for updating the GitOps repository
 
-### Step 1: CI/CD Automation with Jenkins
+#### Step 1: CI/CD Automation with Jenkins
 
 A Jenkins pipeline was implemented to automate the build and delivery process of all microservices. GitHub webhooks trigger the pipeline whenever code is pushed to the repository.
 
-#### Pipeline Workflow
+##### Pipeline Workflow
 
 ```text
 Developer
@@ -443,7 +443,7 @@ GitOps Repository
 5. Kubernetes deployment manifests in the GitOps repository are automatically updated with the new image tags.
 6. Updated manifests are committed and pushed back to the GitOps repository.
 
-#### CI/CD Components
+##### CI/CD Components
 
 - Jenkins Server
 - GitHub Webhook Integration
@@ -453,17 +453,17 @@ GitOps Repository
 - Automated GitOps Manifest Updates
 - SSH-based Git Repository Updates
 
-### Outcome
+#### Outcome
 
 A fully automated CI pipeline is established for the Taskflow microservices platform. Every code change triggers an end-to-end workflow that builds, versions, and publishes container images to Amazon ECR while automatically updating deployment manifests in the GitOps repository. This eliminates manual image management and provides a consistent, repeatable release process across all microservices.
 
-### Step 2: GitOps Continuous Deployment with Argo CD
+#### Step 2: GitOps Continuous Deployment with Argo CD
 
 Argo CD was deployed on Amazon EKS and configured to continuously synchronize Kubernetes manifests and Helm releases from a dedicated GitOps repository.
 
 All Kubernetes manifests and Helm configurations are stored in a dedicated GitOps repository, enabling automated deployment, synchronization, and self-healing.
 
-#### Deployment Workflow
+##### Deployment Workflow
 
 ```bash
 Jenkins Pipeline
@@ -491,7 +491,7 @@ Rolling Update
 6. Kubernetes performs a rolling update of the affected deployments.
 7. New application versions become available without downtime.
 
-### GitOps Components
+#### GitOps Components
 
 - Argo CD
 - GitOps Repository
@@ -501,7 +501,7 @@ Rolling Update
 - Self-Healing Configuration Management
 - Drift Detection
 
-### Access Argo CD UI
+#### Access Argo CD UI
 
 Argo CD was accessed using port forwarding to verify application synchronization, deployment status, and GitOps reconciliation.
 
@@ -522,15 +522,15 @@ kubectl -n argocd get secret argocd-initial-admin-secret \
 -o jsonpath="{.data.password}" | base64 -d
 ```
 
-### Outcome
+#### Outcome
 
 A fully automated GitOps workflow is implemented using Argo CD and Helm. Deployment manifests are continuously synchronized from the GitOps repository to Amazon EKS, enabling version-controlled releases, automated rolling updates, configuration drift correction, and reliable application delivery across the Kubernetes platform.
 
-## Deployment Verification
+### Deployment Verification
 
 After Argo CD synchronization, the deployment status was verified using Kubernetes and Argo CD to ensure all application components reached the desired state.
 
-### Verification Checks
+#### Verification Checks
 
 - Argo CD applications synchronized successfully
 - All Kubernetes deployments reached Ready status
@@ -539,7 +539,7 @@ After Argo CD synchronization, the deployment status was verified using Kubernet
 - Rolling updates completed successfully
 - Cluster state matched the GitOps repository
 
-### Validation Commands
+#### Validation Commands
 
 ```bash
 kubectl get pods -n dev
@@ -548,7 +548,7 @@ kubectl get ingress -n dev
 kubectl get applications -n argocd
 ```
 
-# Phase 3: Monitoring & Observability
+## Phase 3: Monitoring & Observability
 
 Implemented a production-style observability stack as the final observability layer on Amazon EKS using **kube-prometheus-stack (Prometheus, Grafana, Alertmanager, Node Exporter, and kube-state-metrics)**, fully managed through Argo CD GitOps workflows.
 
@@ -556,7 +556,7 @@ Prometheus collects metrics from Kubernetes workloads, nodes, namespaces, and ap
 
 Grafana visualizes infrastructure and application metrics through operational dashboards.
 
-## What Was Implemented
+### What Was Implemented
 
 * Deployed Prometheus and Grafana using Helm on EKS.
 * Instrumented all Node.js microservices using the **prom-client** library.
@@ -565,7 +565,7 @@ Grafana visualizes infrastructure and application metrics through operational da
 * Exposed Grafana through an AWS Application Load Balancer (ALB).
 * Created dashboards for both Kubernetes infrastructure and application-level metrics.
 
-## Metrics Collected
+### Metrics Collected
 
 **Infrastructure & Kubernetes**
 
@@ -583,9 +583,9 @@ Grafana visualizes infrastructure and application metrics through operational da
 * Service uptime
 * Process CPU and memory usage
 
-## Access Monitoring UIs
+### Access Monitoring UIs
 
-### Access Prometheus UI
+#### Access Prometheus UI
 
 ```bash
 kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n monitoring 9090:9090
@@ -597,7 +597,7 @@ Prometheus UI:
 http://localhost:9090
 ```
 
-### Access Grafana UI
+#### Access Grafana UI
 
 ```bash
 kubectl port-forward svc/monitoring-grafana -n monitoring 3000:80
@@ -616,16 +616,16 @@ kubectl get secret monitoring-grafana -n monitoring \
 -o jsonpath="{.data.admin-password}" | base64 -d
 ```
 
-## Outcome
+### Outcome
 
 The monitoring solution provides end-to-end visibility across the EKS cluster and Node.js microservices, enabling proactive monitoring, faster troubleshooting, performance analysis, and real-time operational insights.
 
 
-# Secret Management
+## Secret Management
 
 Sensitive application credentials are centrally managed using AWS Secrets Manager and automatically synchronized into Kubernetes through the External Secrets Operator (ESO). This approach eliminates hardcoded credentials from source code, container images, and Kubernetes manifests while providing a secure and scalable secret management solution.
 
-## Secret Management Flow
+### Secret Management Flow
 
 ```text
 AWS Secrets Manager
@@ -637,7 +637,7 @@ Kubernetes Secrets
 Application Pods
 ```
 
-## Database Credential Flow
+### Database Credential Flow
 
 ```text
 Amazon RDS PostgreSQL
@@ -651,7 +651,7 @@ taskflow-db-secret
 Backend Services
 ```
 
-### Implementation Details
+#### Implementation Details
 
 * Amazon RDS master credentials are stored in AWS Secrets Manager.
 * External Secrets Operator continuously synchronizes secrets into the Kubernetes cluster.
@@ -659,7 +659,7 @@ Backend Services
 * Backend services consume database credentials through environment variables.
 * No credentials are stored in Git repositories or container images.
 
-## RabbitMQ Credential Flow
+### RabbitMQ Credential Flow
 
 ```text
 Amazon MQ RabbitMQ
@@ -673,14 +673,14 @@ taskflow-rabbitmq-secret
 Task Service / Notification Service
 ```
 
-### Implementation Details
+#### Implementation Details
 
 * RabbitMQ broker credentials are securely stored in AWS Secrets Manager.
 * External Secrets Operator synchronizes credentials into Kubernetes Secrets.
 * Microservices access RabbitMQ credentials through Kubernetes Secret references.
 * Secret updates can be propagated without modifying application code.
 
-## Components Used
+### Components Used
 
 * AWS Secrets Manager
 * External Secrets Operator (ESO)
@@ -689,7 +689,7 @@ Task Service / Notification Service
 * Amazon RDS PostgreSQL
 * Amazon MQ RabbitMQ
 
-## Benefits
+### Benefits
 
 * Centralized secret management
 * No hardcoded credentials
@@ -698,11 +698,11 @@ Task Service / Notification Service
 * Automated secret distribution to Kubernetes workloads
 
 
-# Key Implementation Challenges and Solutions
+## Key Implementation Challenges and Solutions
 
 During the implementation of the TaskFlow Microservices project, several real-world infrastructure, Kubernetes, GitOps, CI/CD, and application deployment issues were encountered and resolved.
 
-## 1. Terraform Remote State Checksum Mismatch
+### 1. Terraform Remote State Checksum Mismatch
 
 **Problem**
 
@@ -722,7 +722,7 @@ Only the related DynamoDB digest item was removed after verifying the S3 state f
 
 ---
 
-## 2. EKS Kubernetes Provider Unauthorized
+### 2. EKS Kubernetes Provider Unauthorized
 
 **Problem**
 
@@ -750,7 +750,7 @@ aws eks update-kubeconfig \
 
 ---
 
-## 3. Argo CD Application Not Visible
+### 3. Argo CD Application Not Visible
 
 **Problem**
 
@@ -770,7 +770,7 @@ kubectl apply -f taskflow-dev-application.yaml
 
 ---
 
-## 4. Helm Chart Not Detected Correctly
+### 4. Helm Chart Not Detected Correctly
 
 **Problem**
 
@@ -791,7 +791,7 @@ helm:
 ```
 ---
 
-## 5. Invalid Kubernetes Resource Names
+### 5. Invalid Kubernetes Resource Names
 
 **Problem**
 
@@ -820,7 +820,7 @@ notification-service
 ```
 ---
 
-## 6. Invalid Service Port `0`
+### 6. Invalid Service Port `0`
 
 **Problem**
 
@@ -849,7 +849,7 @@ frontend: 80
 ```
 ---
 
-## 7. External Secrets API Version Mismatch
+### 7. External Secrets API Version Mismatch
 
 **Problem**
 
@@ -872,7 +872,7 @@ apiVersion: external-secrets.io/v1
 ```
 ---
 
-## 8. External Secrets IAM Permission Denied
+### 8. External Secrets IAM Permission Denied
 
 **Problem**
 
@@ -895,7 +895,7 @@ Added permission for RDS-managed secrets:
 ```
 ---
 
-## 9. Missing Kubernetes Secrets
+### 9. Missing Kubernetes Secrets
 
 **Problem**
 
@@ -915,7 +915,7 @@ Fixed the ESO IAM policy and corrected the ExternalSecret definitions. After tha
 
 ---
 
-## 10. EKS Pod Scheduling Limit
+### 10. EKS Pod Scheduling Limit
 
 **Problem**
 
@@ -940,7 +940,7 @@ aws eks update-nodegroup-config \
   --scaling-config desiredSize=3
 ```
 
-# Future Improvements
+## Future Improvements
 
 * Implement Horizontal Pod Autoscaler (HPA) for automatic workload scaling based on CPU and memory utilization.
 * Add HTTPS support using cert-manager and TLS certificates.
@@ -953,7 +953,7 @@ aws eks update-nodegroup-config \
 * Introduce service mesh integration for advanced traffic management and observability.
 * Optimize infrastructure costs through cluster autoscaling and resource tuning.
 
-# Conclusion
+## Conclusion
 
 This project demonstrates the end-to-end implementation of a production-style cloud-native microservices platform on AWS using modern DevOps and Platform Engineering practices.
 
